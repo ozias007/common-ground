@@ -19,6 +19,8 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 
 Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Artist / public figure · South African singer-songwriter").
 
+**Each person can add their own favourites.** After adding yours, tap *Invite them to add theirs*: your picks travel inside a link (no accounts, no database) that you send on WhatsApp. The other person opens it, sees your card filled in, adds theirs and gets the plan. Links are checked strictly when opened, and anything that doesn't look like a genuine invite is ignored.
+
 After the visit you tap what landed. The agent folds that into everyone's taste and plans the next visit.
 
 Works for 2 to 5 people: grandparent and grandchildren, couples who've grown distant, parents and teens, carers and residents, and two people about to go on a first date who want something to talk about.
@@ -58,7 +60,7 @@ Needs Node 20+, a [Qloo hackathon API key](https://docs.qloo.com/reference/qloo-
 ```bash
 cp .env.example .env    # then fill in QLOO_API_KEY and GEMINI_API_KEY
 npm run dev             # http://localhost:3100
-npm test                # offline unit tests (agent loop, evidence rule, model fallback, input checks, Qloo queue)
+npm test                # offline unit tests (agent loop, evidence rule, model fallback, input checks, Qloo queue, invite links)
 npm run test:live       # live smoke check against Qloo
 ```
 
@@ -71,6 +73,7 @@ Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMIN
 ## Privacy and safety
 
 - No accounts. What you type stays in your browser (localStorage) and is sent only to plan your visit.
+- Invite links carry the sender's picks in the link itself, and the app says so before you share one.
 - Qloo responses are never stored in the repo; the server keeps recent plans in memory only.
 - Town suggestions come straight from the browser to [Photon](https://photon.komoot.io) (OpenStreetMap data). Picking one sends exact coordinates so Qloo searches within 15 km.
 - The couples flow says plainly that this isn't counselling and points to the GBV Command Centre (0800 428 428) and FAMSA.

@@ -1,4 +1,5 @@
 // Common Ground front end: plain JS, one state object, screens re-rendered from it.
+import { encodeInvite, decodeInvite } from './invite.js';
 const KEY = 'commonground.v1';
 const MAX_PEOPLE = 5;
 const MAX_FAVS = 8;
@@ -236,6 +237,7 @@ function people() {
   ${stepper(0)}
   <h1>Create a connection</h1>
   <p class="lead">${esc(g.title)}. Tell us about the people. Add a few favourites each, about 3 works best: anything from music and films to food, places and books. You can fill in for someone else.</p>
+  ${state.invitedBy ? `<p class="invite-note">${svg('people')} <span><b>${esc(state.invitedBy)}</b> already added their favourites. Add yours below, then tap <b>Next</b>.</span></p>` : ''}
   ${state.groupType === 'first_date' ? `<p class="safety">Add what you know about your date (or ask them for a few favourites). Stay safe: meet somewhere public, tell a friend where you're going, and plan your own way home.</p>` : ''}
   ${state.groupType === 'couple' ? `<p class="safety">Common Ground helps couples who've grown distant find things to enjoy together. It isn't counselling. If you feel unsafe at home, please reach out: in South Africa call the GBV Command Centre on <a href="tel:0800428428">0800 428 428</a>, or find a counsellor through <a href="https://famsa.org.za" target="_blank" rel="noopener">FAMSA</a>.</p>` : ''}
   <div class="people">
@@ -276,6 +278,8 @@ function people() {
   </div>
   ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
   <div class="actions">
+    ${state.people.some(p => p.favourites.length) ? `<button class="btn ghost" data-action="invite">${svg('link')} Invite them to add theirs</button>
+    <span class="hint">Your picks travel inside the link, so only send it to them.</span>` : ''}
     <span class="spacer"></span>
     <button class="btn" data-action="run">Next: Explore ${svg('arrow')}</button>
   </div>`;
@@ -488,6 +492,15 @@ const actions = {
     input.focus();
     if (input.value.trim().length >= 2) searchSoon(+i, input.value.trim(), 0);
   },
+  invite: async () => {
+    const filled = state.people.filter(p => p.favourites.length).length;
+    const url = `${location.origin}${location.pathname}#invite=${encodeInvite(state)}`;
+    const text = `I've added ${filled > 1 ? 'our' : 'my'} favourites on Common Ground. Add yours and let's see what we have in common:`;
+    try {
+      if (navigator.share) await navigator.share({ title: 'Common Ground', text, url });
+      else { await navigator.clipboard.writeText(`${text} ${url}`); toast('Invite link copied. Paste it into WhatsApp or a message.'); }
+    } catch { /* share sheet closed */ }
+  },
   'search-now': el => {
     const input = app.querySelector(`[data-search="${el.dataset.i}"]`);
     if (input.value.trim().length < 2) return input.focus();
@@ -673,6 +686,16 @@ function addFavourite(pick) {
   save();
   render();
   app.querySelector(`[data-search="${i}"]`)?.focus();
+}
+
+// Opened from an invite link: load the picks, then drop them from the address bar.
+const invite = location.hash.startsWith('#invite=') && decodeInvite(location.hash.slice(8));
+if (location.hash.startsWith('#invite=')) {
+  history.replaceState(null, '', location.pathname);
+  if (invite) {
+    state = { ...fresh(), ...invite, screen: 'people', invitedBy: listOf(invite.people.filter(p => p.favourites.length).map(p => p.name)) };
+    save();
+  } else toast("That invite link didn't open properly. Ask them to send it again.");
 }
 
 render();
