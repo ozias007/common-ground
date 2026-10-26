@@ -12,8 +12,22 @@ const GROUPS = {
   friends: { title: 'Old friends', line: 'Pick up where you left off.', names: ['', ''], tint: 's5', icon: 'people', hidden: true },
 };
 
-const TYPE_LABEL = { artist: 'Music', movie: 'Film', tv_show: 'TV show', book: 'Book', podcast: 'Podcast', place: 'Place', destination: 'Destination', brand: 'Brand', person: 'Person', video_game: 'Game' };
+const TYPE_LABEL = { artist: 'Music', movie: 'Film', tv_show: 'TV show', book: 'Book', podcast: 'Podcast', place: 'Place', destination: 'Destination', brand: 'Brand', person: 'Artist / public figure', video_game: 'Game' };
 const TINTS = ['s1', 's2', 's3', 's4', 's5'];
+// Category buttons above each interest box; keys match CATEGORIES in api/search.js.
+const CATS = [
+  ['', 'All', 'e.g. Brenda Fassie, Black Panther, Kaizer Chiefs'],
+  ['music', 'Music', 'e.g. Brenda Fassie, Burna Boy'],
+  ['films', 'Films', 'e.g. Sarafina!, Black Panther'],
+  ['tv', 'TV shows', 'e.g. Skeem Saam, Generations'],
+  ['books', 'Books', 'e.g. Long Walk to Freedom'],
+  ['podcasts', 'Podcasts', 'e.g. a podcast they never miss'],
+  ['places', 'Food & places', "e.g. Nando's, a favourite restaurant"],
+  ['travel', 'Travel', 'e.g. Zanzibar, Cape Town, Paris'],
+  ['sport', 'Sport & brands', 'e.g. Kaizer Chiefs, Springboks, Nike'],
+  ['people', 'Famous people', 'e.g. Trevor Noah, Siya Kolisi'],
+];
+const cats = {}; // person index -> chosen category key
 const PAIRS = ['couple', 'first_date']; // always exactly two people
 const TYPE_ICON = { artist: 'music', movie: 'film', tv_show: 'film', book: 'book', podcast: 'music', place: 'pin', destination: 'pin', brand: 'spark' };
 
@@ -237,9 +251,12 @@ function people() {
         ${p.favourites.map((f, j) => `<li class="chip">${esc(f.name)} <em>${TYPE_LABEL[f.type] || ''}</em><button data-action="remove-fav" data-i="${i}" data-j="${j}" aria-label="Remove ${esc(f.name)}">×</button></li>`).join('')}
       </ul>
       <p class="label">Add ${p.favourites.length ? 'more ' : ''}interests</p>
+      <div class="cats" role="group" aria-label="Kind of interest">
+        ${CATS.map(([key, label]) => `<button class="cat" data-action="cat" data-i="${i}" data-cat="${key}" aria-pressed="${(cats[i] || '') === key}">${label}</button>`).join('')}
+      </div>
       <div class="add-row">
         <div class="search">
-          <input class="field" data-search="${i}" placeholder="e.g. Brenda Fassie, Marvel, Kaizer Chiefs" aria-label="Add an interest for ${esc(p.name || `person ${i + 1}`)}" autocomplete="off" ${p.favourites.length >= MAX_FAVS ? 'disabled' : ''}>
+          <input class="field" data-search="${i}" placeholder="${esc(CATS.find(([key]) => key === (cats[i] || ''))[2])}" aria-label="Add an interest for ${esc(p.name || `person ${i + 1}`)}" autocomplete="off" ${p.favourites.length >= MAX_FAVS ? 'disabled' : ''}>
           <ul class="results" data-results="${i}" hidden></ul>
         </div>
         <button class="plus" data-action="search-now" data-i="${i}" aria-label="Search">+</button>
@@ -462,6 +479,15 @@ const actions = {
   'add-person': () => { state.people.push({ name: '', favourites: [] }); save(); render(); app.querySelector(`[data-name="${state.people.length - 1}"]`)?.focus(); },
   'remove-person': el => { state.people.splice(+el.dataset.i, 1); save(); render(); },
   'remove-fav': el => { state.people[+el.dataset.i].favourites.splice(+el.dataset.j, 1); save(); render(); },
+  cat: el => {
+    const i = el.dataset.i;
+    cats[i] = el.dataset.cat;
+    el.parentElement.querySelectorAll('.cat').forEach(b => b.setAttribute('aria-pressed', b === el));
+    const input = app.querySelector(`[data-search="${i}"]`);
+    input.placeholder = CATS.find(([key]) => key === cats[i])[2];
+    input.focus();
+    if (input.value.trim().length >= 2) searchSoon(+i, input.value.trim(), 0);
+  },
   'search-now': el => {
     const input = app.querySelector(`[data-search="${el.dataset.i}"]`);
     if (input.value.trim().length < 2) return input.focus();
@@ -624,8 +650,9 @@ function searchSoon(i, q, delay = 300) {
     list.hidden = false;
     list.innerHTML = '<li class="hint">Searching Qloo…</li>';
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      const found = (await res.json()).filter(r => TYPE_LABEL[r.type]);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${cats[i] ? `&cat=${cats[i]}` : ''}`);
+      const seen = new Set(); // Qloo sometimes lists the same title more than once
+      const found = (await res.json()).filter(r => TYPE_LABEL[r.type] && !seen.has(r.type + r.name) && seen.add(r.type + r.name));
       if (ticket !== latest) return;
       list.innerHTML = found.length
         ? found.map(r => `<li><button data-pick='${esc(JSON.stringify({ id: r.id, name: r.name, type: r.type }))}' data-i="${i}">

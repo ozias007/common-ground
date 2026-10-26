@@ -15,6 +15,8 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 - **Surprises**: non-obvious cultural links the data shows.
 - **A plan for the next visit**: a song swap, something to watch together, a real place nearby, and conversation starters that grow out of what they'll share.
 
+Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Artist / public figure · South African singer-songwriter").
+
 After the visit you tap what landed. The agent folds that into everyone's taste and plans the next visit.
 
 Works for 2 to 5 people: grandparent and grandchildren, couples who've grown distant, parents and teens, carers and residents, and two people about to go on a first date who want something to talk about.
@@ -25,7 +27,7 @@ A plain LLM guesses at what a 75-year-old Jim Reeves fan and a 16-year-old Burna
 
 | What | Qloo call |
 |---|---|
-| Resolve "Brenda Fassie" to a real entity | `GET /search` |
+| Resolve "Brenda Fassie" to a real entity, optionally within a category (Music, Films, TV shows, Books, Podcasts, Food & places, Travel, Sport & brands, Famous people) | `GET /search` with `types` |
 | Bridges: one blended signal from everyone's favourites | `GET /v2/insights` with `signal.interests.entities=A,B,C` |
 | Swaps: take person A's world, re-rank it by everyone else's taste | `GET /v2/insights` with `filter.results.entities` |
 | Real places nearby | `GET /v2/insights` with `filter.type=urn:entity:place`, `filter.location=POINT(lon lat)` and a 15 km `filter.location.radius` |

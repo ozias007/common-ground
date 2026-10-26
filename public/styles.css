@@ -286,3 +286,10 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .results .thumb.round { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--indigo); }
 .results .thumb.round svg { width: 18px; height: 18px; }
 .location .results { right: 0; }
+
+/* ---------- interest categories ---------- */
+.cats { display: flex; gap: 6px; margin: 0 0 10px; overflow-x: auto; scrollbar-width: none; padding: 2px 24px 2px 0; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.cats::-webkit-scrollbar { display: none; }
+.cat { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--body); border-radius: 999px; padding: 4px 11px; font-size: .78rem; font-weight: 600; cursor: pointer; }
+.cat:hover { border-color: var(--chip-line); color: var(--ink); }
+.cat[aria-pressed="true"] { background: var(--indigo); border-color: var(--indigo); color: #fff; }
