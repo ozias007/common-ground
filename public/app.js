@@ -8,11 +8,13 @@ const GROUPS = {
   couple: { title: 'Couple', line: 'Rediscover what brought you together.', names: ['', ''], tint: 's2', icon: 'heart' },
   parent_teen: { title: 'Parent & teen', line: "Get into each other's world.", names: ['Mum', 'Teen'], tint: 's3', icon: 'people' },
   carer: { title: 'Carer & resident', line: 'Know who they were before they came here.', names: ['Carer', 'Resident'], tint: 's4', icon: 'user' },
+  first_date: { title: 'First date', line: 'Know what to talk about before you say hello.', names: ['You', 'Your date'], tint: 's5', icon: 'spark' },
   friends: { title: 'Old friends', line: 'Pick up where you left off.', names: ['', ''], tint: 's5', icon: 'people', hidden: true },
 };
 
 const TYPE_LABEL = { artist: 'Music', movie: 'Film', tv_show: 'TV show', book: 'Book', podcast: 'Podcast', place: 'Place', destination: 'Destination', brand: 'Brand', person: 'Person', video_game: 'Game' };
 const TINTS = ['s1', 's2', 's3', 's4', 's5'];
+const PAIRS = ['couple', 'first_date']; // always exactly two people
 const TYPE_ICON = { artist: 'music', movie: 'film', tv_show: 'film', book: 'book', podcast: 'music', place: 'pin', destination: 'pin', brand: 'spark' };
 
 // One-click demo: Sunday lunch at Gogo's with three grandkids who all like different things.
@@ -67,6 +69,7 @@ function save() {
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const app = document.getElementById('app');
 const names = () => state.people.map(p => p.name.trim()).filter(Boolean);
+const enjoys = name => name.trim() ? `What ${esc(name.trim())} enjoys` : 'What they enjoy';
 const listOf = ns => ns.length > 1 ? `${ns.slice(0, -1).join(', ')} and ${ns.at(-1)}` : ns[0] || '';
 
 function go(screen) {
@@ -199,13 +202,14 @@ const venn = '<svg class="venn" viewBox="0 0 150 100" aria-hidden="true"><circle
 
 function people() {
   const g = GROUPS[state.groupType];
-  const max = state.groupType === 'couple' ? 2 : MAX_PEOPLE;
+  const max = PAIRS.includes(state.groupType) ? 2 : MAX_PEOPLE;
   return `
   ${venn}
   <button class="link back" data-action="home">${svg('back')} Back</button>
   ${stepper(0)}
   <h1>Create a connection</h1>
   <p class="lead">${esc(g.title)}. Tell us about the people. Add a few favourites each, about 3 works best: anything from music and films to food, places and books. You can fill in for someone else.</p>
+  ${state.groupType === 'first_date' ? `<p class="safety">Add what you know about your date (or ask them for a few favourites). Stay safe: meet somewhere public, tell a friend where you're going, and plan your own way home.</p>` : ''}
   ${state.groupType === 'couple' ? `<p class="safety">Common Ground helps couples who've grown distant find things to enjoy together. It isn't counselling. If you feel unsafe at home, please reach out: in South Africa call the GBV Command Centre on <a href="tel:0800428428">0800 428 428</a>, or find a counsellor through <a href="https://famsa.org.za" target="_blank" rel="noopener">FAMSA</a>.</p>` : ''}
   <div class="people">
     ${state.people.map((p, i) => `
@@ -215,7 +219,7 @@ function people() {
         <label>Person ${i + 1}<input class="field" placeholder="Name, e.g. Grandma" value="${esc(p.name)}" data-name="${i}" maxlength="40"></label>
         ${state.people.length > 2 ? `<button class="remove" data-action="remove-person" data-i="${i}" aria-label="Remove ${esc(p.name || 'this person')}">×</button>` : ''}
       </div>
-      <p class="label">What ${esc(p.name.trim() || 'they')} enjoy${p.name.trim() ? 's' : ''}</p>
+      <p class="label" data-enjoys="${i}">${enjoys(p.name)}</p>
       <ul class="chips">
         ${p.favourites.map((f, j) => `<li class="chip">${esc(f.name)} <em>${TYPE_LABEL[f.type] || ''}</em><button data-action="remove-fav" data-i="${i}" data-j="${j}" aria-label="Remove ${esc(f.name)}">×</button></li>`).join('')}
       </ul>
@@ -250,7 +254,7 @@ function exploring() {
   <h1 style="text-align:center">Exploring your tastes…</h1>
   <p class="lead" style="text-align:center;margin:0 auto">The agent is searching Qloo's taste graph for ${esc(listOf(names()))}. This takes about half a minute.</p>
   <div class="card explore-card">
-    <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="#f48084"/><circle cx="34" cy="18" r="16" fill="#6c5ce7" opacity=".85"/></svg><span>Exploring your tastes…</span></div>
+    <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><path d="M26 6.51A14 14 0 0 1 26 29.49A14 14 0 0 1 26 6.51Z" fill="url(#cg-lens)"/><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="34" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg><span>Exploring your tastes…</span></div>
     <ul class="trail" aria-live="polite">
       ${trail.map(t => `<li class="${t.type}">${esc(t.text)}</li>`).join('')}
       ${error ? '' : '<li class="thinking">Thinking…</li>'}
@@ -332,7 +336,7 @@ function plan() {
       </section>
       <div class="dash-body">
         <div class="cols3" id="found">
-          ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd all enjoy`, p.bridges, b => row(b))}
+          ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd ${names().length === 2 ? 'both' : 'all'} enjoy`, p.bridges, b => row(b))}
           ${column('swaps', 'swap', 's5', 'Swaps', "Each person's world, for the others", p.swaps, s => row(s, `${esc(s.from)} shares ${esc(s.entity?.name)}`))}
           ${column('surprises', 'heart', 's2', 'Surprises', 'Interesting facts from the data', p.surprises || [], s => `
             <li class="row-item"><span class="thumb round" style="background:var(--s2)">${svg('spark')}</span><div><p style="margin:0;color:var(--ink)">${esc(s.text)}</p>${badge(s.source)}</div></li>`)}
@@ -540,6 +544,7 @@ app.addEventListener('input', e => {
     state.people[+t.dataset.name].name = t.value;
     const avatar = t.closest('.person-head').querySelector('.avatar');
     avatar.textContent = (t.value.trim()[0] || +t.dataset.name + 1).toString().toUpperCase();
+    app.querySelector(`[data-enjoys="${t.dataset.name}"]`).innerHTML = enjoys(t.value);
     save();
   }
   if (t.dataset.city !== undefined) { state.city = t.value; save(); }
