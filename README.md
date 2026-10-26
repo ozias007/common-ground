@@ -4,7 +4,7 @@
 
 Built for the [Qloo Agentic Hackathon](https://qloo-agentic-hackathon.devpost.com/).
 
-**Live demo:** _link added once deployed_. Click **Watch a live example** to see the agent plan Sunday lunch for Gogo Thandi and her three grandkids, no typing needed. Then try it with your own people.
+**Live demo:** https://common-ground-ecru.vercel.app Click **Watch a live example** to see the agent plan Sunday lunch for Gogo Thandi and her three grandkids, no typing needed. Then try it with your own people.
 
 A gogo who loves Jim Reeves. Grandkids who love Burna Boy, Lucky Dube and Ladysmith Black Mambazo. They love each other, but Sunday lunch runs out of things to say. About 1 in 6 people worldwide experience loneliness (WHO, 2025), and often the people we love are right there. We've just run out of things to share.
 
@@ -47,7 +47,7 @@ A plain LLM guesses at what a 75-year-old Jim Reeves fan and a 16-year-old Burna
 
 Each step streams to the browser, so you watch the agent research.
 
-**Built to survive a free tier.** Gemini's free quota is per model per day, so the agent walks a list of six models and hands over when one is busy or out of quota. Identical requests (like the live example) replay the last plan from memory in a few seconds instead of spending quota. Qloo calls retry once and are cached per server instance.
+**Built to survive a free tier.** Gemini's free quota is per model per day, so the agent walks a list of six models and hands over when one is busy or out of quota. Identical requests (like the live example) replay the last plan from memory in a few seconds instead of spending quota. Qloo lookups are queued (at most 4 at a time, because the hackathon key rate-limits bursts), retried on a rate limit or dropped connection, and cached per server instance.
 
 ## Run it locally
 
@@ -56,7 +56,7 @@ Needs Node 20+, a [Qloo hackathon API key](https://docs.qloo.com/reference/qloo-
 ```bash
 cp .env.example .env    # then fill in QLOO_API_KEY and GEMINI_API_KEY
 npm run dev             # http://localhost:3100
-npm test                # offline unit tests (agent loop, evidence rule, model fallback, input checks)
+npm test                # offline unit tests (agent loop, evidence rule, model fallback, input checks, Qloo queue)
 npm run test:live       # live smoke check against Qloo
 ```
 
@@ -64,7 +64,7 @@ No build step and no dependencies: plain HTML/CSS/JS in `public/`, two serverles
 
 ## Deploy
 
-Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMINI_API_KEY` as environment variables, deploy. `vercel.json` gives the agent up to 5 minutes per run.
+Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMINI_API_KEY` as environment variables, deploy. `vercel.json` sets no framework (so Vercel serves `public/` as static files instead of guessing a Node server) and gives the agent up to 5 minutes per run.
 
 ## Privacy and safety
 
