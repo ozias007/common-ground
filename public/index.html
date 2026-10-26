@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Common Ground</title>
+  <meta name="description" content="An AI agent that finds the shared world between people who have drifted apart, and plans their next time together.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 36'><circle cx='18' cy='18' r='16' fill='%23f48084'/><circle cx='34' cy='18' r='16' fill='%236c5ce7' opacity='.85'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a href="#" class="brand" data-action="home" aria-label="Common Ground home">
+        <svg class="logo" viewBox="0 0 52 36" aria-hidden="true">
+          <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#f48084"/><stop offset="1" stop-color="#a68df1"/></linearGradient></defs>
+          <circle cx="18" cy="18" r="16" fill="#f48084"/><circle cx="34" cy="18" r="16" fill="url(#lg)" opacity=".9"/><circle cx="34" cy="18" r="16" fill="#4b3fb0" opacity=".55"/>
+        </svg>
+        <span>Common Ground</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <button data-action="home">Home</button>
+        <button data-action="scroll" data-to="how">How it works</button>
+        <button data-action="scroll" data-to="who">Use cases</button>
+        <button data-action="scroll" data-to="agent">About</button>
+      </nav>
+      <button class="btn small" data-action="scroll" data-to="who">Get started</button>
+    </div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <footer class="foot">
+    <div class="foot-inner">
+      <span class="brand small"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="#f48084"/><circle cx="34" cy="18" r="16" fill="#6c5ce7" opacity=".85"/></svg>Common Ground</span>
+      <span>Better conversations. Stronger bonds.</span>
+      <span class="credit">Taste data from <a href="https://www.qloo.com" target="_blank" rel="noopener">Qloo</a> · Planned by an AI agent · Nothing you type is stored on our server</span>
+    </div>
+  </footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

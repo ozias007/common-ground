@@ -1,0 +1,6 @@
+{
+  "name": "cultura",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --env-file=.env lib/qloo.test.js", "dev": "node --watch --env-file=.env server.js" }
+}
