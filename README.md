@@ -62,6 +62,7 @@ Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMIN
 
 - No accounts. What you type stays in your browser (localStorage) and is sent only to plan your visit.
 - Qloo responses are never stored in the repo; the server keeps recent plans in memory only.
+- Town suggestions come straight from the browser to [Photon](https://photon.komoot.io) (OpenStreetMap data). Picking one sends exact coordinates so Qloo searches within 15 km.
 - The couples flow says plainly that this isn't counselling and points to the GBV Command Centre (0800 428 428) and FAMSA.
 
 ## Credits
