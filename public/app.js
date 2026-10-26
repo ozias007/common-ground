@@ -361,7 +361,7 @@ function planText() {
     p.visit.title,
     ...p.visit.steps.map((s, i) => `${i + 1}. ${s.what}${s.entity ? ` (${s.entity.name})` : ''}`), '',
     'Things to talk about:',
-    ...p.conversationStarters.map(c => `- ${c.question}`),
+    ...p.conversationStarters.map(c => `- ${c.asker ? `${c.asker} asks ${c.to}: ` : ''}${c.question}${c.followUp ? ` (then: ${c.followUp})` : ''}`),
   ].join('\n');
 }
 
@@ -425,7 +425,13 @@ function plan() {
           </div>
           <div class="card starters">
             <div class="col-head"><span class="icon" style="background:var(--card)">${svg('chat')}</span><div><h3>${p.conversationStarters.length} conversation starters</h3></div></div>
-            <ol>${p.conversationStarters.map(c => `<li>${esc(c.question)}${c.entity ? ` <span class="meta">(${esc(c.entity.name)})</span>` : ''}</li>`).join('')}</ol>
+            <ol class="starters-list">${p.conversationStarters.map(c => `<li>
+              ${c.asker ? `<span class="asker">${esc(c.asker)} ${svg('arrow')} ${esc(c.to)}</span>` : ''}
+              ${c.hook && c.entity ? `<span class="hook">${esc(c.hook)}</span>` : ''}
+              <strong>${esc(c.question)}</strong>
+              ${c.followUp ? `<span class="follow">If they light up: ${esc(c.followUp)}</span>` : ''}
+              ${c.entity ? `<span class="meta">About ${esc(c.entity.name)}</span>` : ''}
+            </li>`).join('')}</ol>
             <button class="btn small" data-action="save-plan">Save plan</button>
           </div>
         </div>

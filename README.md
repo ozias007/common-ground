@@ -15,7 +15,7 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 - **Bridges**: films, music, shows, books and places the whole group is likely to enjoy, from one blended taste signal of everyone's favourites.
 - **Swaps**: from each person's world, the thing the *others* are most likely to love. ("Gogo, play them Sibongile Khumalo first.")
 - **Surprises**: non-obvious cultural links the data shows.
-- **A plan for the next visit** that names the actual song, film and place ("Sipho plays Gogo some Davido · Watch King Richard together · Lunch at Roar Bistro"), plus conversation starters that grow out of what they'll share.
+- **A plan for the next visit** that names the actual song, film and place ("Sipho plays Gogo some Davido · Watch King Richard together · Lunch at Roar Bistro"), plus 4 or 5 conversation starters. Each says who asks whom ("Sipho → Gogo"), opens with a fact from Qloo's data about a recommended item, and comes with a follow-up for when they light up. The mix is deliberate: one invites the older person to tell a story from their time, one lets the younger person teach something, one is a playful this-or-that.
 - **One tap to do it**: every song, film, show, book and place has a *Listen*, *Watch trailer*, *Look inside* or *Directions* button (YouTube, Google Books and Google Maps search links, no extra accounts).
 
 Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Artist / public figure · South African singer-songwriter").

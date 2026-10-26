@@ -226,7 +226,7 @@ body[data-screen="home"] .nav button:hover, body[data-screen="plan"] .nav button
 .badge { display: inline-block; font-size: .68rem; font-weight: 700; border-radius: 999px; padding: 1px 8px; margin-top: 4px; }
 .badge.qloo { color: var(--qloo); background: var(--s2); }
 .badge.agent { color: var(--agent); background: var(--s3); }
-.visit { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-top: 16px; }
+.visit { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
 .visit-main { display: flex; gap: 18px; }
 .visit-main > img, .visit-main > .thumb { width: 120px; height: 150px; border-radius: 14px; object-fit: cover; flex: none; }
 .vsteps { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
@@ -319,3 +319,12 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .notes .learned { background: var(--s2); border-radius: 10px; padding: 8px 12px; color: var(--ink); }
 .notes .link { font-size: .8rem; }
 @media (max-width: 760px) { .notes { margin: 12px 16px 0; } }
+
+/* ---------- conversation starters ---------- */
+.starters-list { list-style: none; padding: 0; margin: 8px 0 14px; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.starters-list li { background: var(--card); border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; margin: 0; }
+.starters-list .asker { display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .05em; }
+.starters-list .asker svg { width: 12px; height: 12px; }
+.starters-list .hook { font-size: .84rem; color: var(--body); font-style: italic; }
+.starters-list strong { color: var(--ink); font-weight: 600; }
+.starters-list .follow { font-size: .84rem; color: var(--body); }
