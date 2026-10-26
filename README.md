@@ -15,7 +15,7 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 
 After the visit you tap what landed. The agent folds that into everyone's taste and plans the next visit.
 
-Works for 2 to 5 people: grandparent and grandchildren, couples who've grown distant, parents and teens, carers and residents.
+Works for 2 to 5 people: grandparent and grandchildren, couples who've grown distant, parents and teens, carers and residents, and two people about to go on a first date who want something to talk about.
 
 ## Why it needs Qloo
 
@@ -48,7 +48,8 @@ Needs Node 20+, a [Qloo hackathon API key](https://docs.qloo.com/reference/qloo-
 ```bash
 cp .env.example .env    # then fill in QLOO_API_KEY and GEMINI_API_KEY
 npm run dev             # http://localhost:3100
-npm test                # live smoke check against Qloo
+npm test                # offline unit tests (agent loop, evidence rule, model fallback, input checks)
+npm run test:live       # live smoke check against Qloo
 ```
 
 No build step and no dependencies: plain HTML/CSS/JS in `public/`, two serverless functions in `api/`.
