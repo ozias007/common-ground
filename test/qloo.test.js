@@ -19,3 +19,18 @@ test('never more than 4 Qloo requests at once, and 429s are retried', async () =
   assert.equal(calls, 11, 'the rate-limited call was retried once');
   assert.ok(results.every(r => r[0].name === 'Tems'));
 });
+
+test('only places you could spend an afternoon at are kept', async () => {
+  const { visitable } = await import('../lib/qloo.js');
+  const place = (name, ...categories) => visitable({ name, categories });
+  for (const ok of [place('Goldbar', 'Bar'), place('Robben Island Museum', 'History museum'), place('Neighbourgoods', 'Farmers market'), place('Zoo Lake', 'Park')]) assert.equal(ok, true);
+  for (const no of [
+    place('Glenwood High School', 'Boys high school'),
+    place('University of KwaZulu-Natal'), // no categories at all
+    place('Olive Convention Centre', 'Catering food and drink supplier'),
+    place('Roots Butchery', 'Supermarket'),
+    place('Sharp Cuts', 'Barbershop'), // "bar" must be a whole word
+    place('Car Park', 'Parking lot'),
+    place('Vuse', 'Vaporizer store'),
+  ]) assert.equal(no, false);
+});

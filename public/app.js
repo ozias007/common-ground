@@ -53,6 +53,7 @@ const ICON = {
   calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
   heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  play: '<path d="M7 5v14l11-7L7 5Z"/>',
   back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
   pin: '<path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11Z"/><circle cx="12" cy="10" r="2.2"/>',
   music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
@@ -305,6 +306,21 @@ function exploring() {
 const badge = source => source === 'qloo'
   ? '<span class="badge qloo" title="This came back from Qloo\'s taste graph">From Qloo data</span>'
   : '<span class="badge agent" title="Suggested by the agent, not from Qloo data">Agent\'s idea</span>';
+// One tap from the plan to actually doing it. Plain search links: no extra keys or accounts.
+const ACT = {
+  artist: ['Listen', 'play', e => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.name} songs`)}`],
+  person: ['Listen', 'play', e => `https://www.youtube.com/results?search_query=${encodeURIComponent(e.name)}`],
+  movie: ['Watch trailer', 'play', e => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.name} trailer`)}`],
+  tv_show: ['Watch trailer', 'play', e => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.name} trailer`)}`],
+  podcast: ['Listen', 'play', e => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.name} podcast`)}`],
+  book: ['Look inside', 'book', e => `https://www.google.com/search?tbm=bks&q=${encodeURIComponent(e.name)}`],
+  place: ['Directions', 'pin', e => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([e.name, e.address].filter(Boolean).join(', '))}`],
+  destination: ['Explore', 'pin', e => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.name)}`],
+};
+const act = e => {
+  const [label, icon, url] = ACT[e?.type] || [];
+  return label ? `<a class="act" href="${esc(url(e))}" target="_blank" rel="noopener">${svg(icon)} ${label}<span class="sr-only"> ${esc(e.name)} (opens in a new tab)</span></a>` : '';
+};
 const tagLine = e => [TYPE_LABEL[e.type] || e.type, ...(e.tags || []).slice(0, 2)].filter(Boolean).map(esc).join(' · ');
 
 function row(item, title) {
@@ -317,7 +333,7 @@ function row(item, title) {
       <span class="tags">${tagLine(e)}</span>
       ${e.type === 'place' && e.description ? `<p><i>Qloo: "${esc(e.description)}"</i></p>` : ''}
       <p>${esc(item.why)}</p>
-      ${badge(item.source)}
+      <div class="acts">${badge(item.source)}${act(e)}</div>
     </div>
   </li>`;
 }
@@ -388,7 +404,7 @@ function plan() {
               <div>
                 <strong style="color:var(--ink)">${esc(p.visit.title)}</strong>
                 <ol class="vsteps">
-                  ${p.visit.steps.map((s, i) => `<li><span class="n">${i + 1}</span><span><strong>${esc(s.what)}</strong>${s.entity ? ` <span class="meta">(${esc(s.entity.name)})</span>` : ''}<br>${esc(s.why || '')} ${badge(s.source)}</span></li>`).join('')}
+                  ${p.visit.steps.map((s, i) => `<li><span class="n">${i + 1}</span><span><strong>${esc(s.what)}</strong>${s.entity ? ` <span class="meta">(${esc(s.entity.name)})</span>` : ''}<br>${esc(s.why || '')}<span class="acts">${badge(s.source)}${act(s.entity)}</span></span></li>`).join('')}
                 </ol>
               </div>
             </div>

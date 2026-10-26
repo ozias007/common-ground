@@ -15,7 +15,8 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 - **Bridges**: films, music, shows, books and places the whole group is likely to enjoy, from one blended taste signal of everyone's favourites.
 - **Swaps**: from each person's world, the thing the *others* are most likely to love. ("Gogo, play them Sibongile Khumalo first.")
 - **Surprises**: non-obvious cultural links the data shows.
-- **A plan for the next visit**: a song swap, something to watch together, a real place nearby, and conversation starters that grow out of what they'll share.
+- **A plan for the next visit** that names the actual song, film and place ("Sipho plays Gogo some Davido · Watch King Richard together · Lunch at Roar Bistro"), plus conversation starters that grow out of what they'll share.
+- **One tap to do it**: every song, film, show, book and place has a *Listen*, *Watch trailer*, *Look inside* or *Directions* button (YouTube, Google Books and Google Maps search links, no extra accounts).
 
 Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Artist / public figure · South African singer-songwriter").
 
@@ -37,6 +38,8 @@ A plain LLM guesses at what a 75-year-old Jim Reeves fan and a 16-year-old Burna
 | Real places nearby | `GET /v2/insights` with `filter.type=urn:entity:place`, `filter.location=POINT(lon lat)` and a 15 km `filter.location.radius` |
 
 **Evidence is enforced in code, not just in the prompt.** Every bridge and swap must point at an entity id that a Qloo call actually returned during that run, or it is dropped before anyone sees it. Things the people already love are dropped too, so every suggestion is a discovery. Everything on screen is labelled *From Qloo data* or *Agent's idea*.
+
+**Places must be somewhere you'd spend an afternoon.** Qloo's nearby results include schools, radio stations and holiday villas, so the server keeps only places whose Qloo categories are restaurants, cafés, bars, venues, museums, parks, markets and the like.
 
 **Places are searched by exact coordinates.** Qloo matches place names loosely (a text search for "Durban" returned cafés in Durbanville, Cape Town), so the location box suggests real towns as you type and sends the chosen town's coordinates.
 
