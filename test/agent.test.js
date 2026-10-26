@@ -43,6 +43,7 @@ const input = {
 
 const plan = {
   headline: 'Music and family stories',
+  agentNotes: 'I looked at films and music, then balanced the swaps.',
   bridges: [
     { entityId: FILM, why: 'An uplifting family film' },
     { entityId: MADE_UP, why: 'Invented by the model' },
@@ -56,7 +57,7 @@ const plan = {
 test('agent loop: calls Qloo tools, then returns an evidence-checked plan', async () => {
   geminiTurns = {
     'model-a': [
-      [call('find_bridges', { category: 'movie' }), call('find_swaps', { from: 'Sipho', category: 'artist' })],
+      [call('find_bridges', { category: 'movie', reason: 'Films can bring both generations together.' }), call('find_swaps', { from: 'Sipho', category: 'artist' })],
       [call('submit_plan', plan)],
     ],
   };
@@ -69,6 +70,11 @@ test('agent loop: calls Qloo tools, then returns an evidence-checked plan', asyn
   assert.deepEqual(result.visit.steps.map(s => s.source), ['qloo', 'agent'], 'steps without Qloo data are labelled as the agent\'s idea');
   assert.ok(events.some(e => e.text === 'Finding films Gogo and Sipho would both enjoy'));
   assert.ok(events.some(e => e.text === "Ranking Sipho's artists by Gogo's taste"));
+
+  // The agent is visible: rounds, its reason for each lookup, and notes with real counts.
+  assert.deepEqual(events.filter(e => e.type === 'round').map(e => e.n), [1]);
+  assert.equal(events.find(e => e.text.startsWith('Finding films')).reason, 'Films can bring both generations together.');
+  assert.deepEqual(result.notes, { text: 'I looked at films and music, then balanced the swaps.', feedback: '', lookups: 2, rounds: 1 });
 
   // The model only ever sees names it can pick from.
   const tools = geminiCalls[0].body.tools[0].functionDeclarations;

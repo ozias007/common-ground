@@ -45,12 +45,14 @@ A plain LLM guesses at what a 75-year-old Jim Reeves fan and a 16-year-old Burna
 
 ## How the agent works
 
-`lib/agent.js` runs a tool-calling loop on Gemini:
+`lib/agent.js` runs a tool-calling loop on Gemini, in rounds:
 
-1. The model gets the people, their favourites, the city and any past-visit feedback.
-2. It chooses which Qloo tools to call (`find_bridges`, `find_swaps`, `find_places`, `search_entity`), usually several at once, across categories and from every person's side.
-3. Results come back slimmed down; the agent checks for gaps (e.g. bridges leaning to one person's world) and calls more tools.
-4. It finishes by calling `submit_plan`. The server attaches the real Qloo entities and drops anything without evidence.
+1. **Round 1, explore.** The model gets the people, their favourites, the place and any past-visit feedback, and chooses its Qloo lookups (`find_bridges` across several categories, `find_places`), all at once.
+2. **Round 2, react.** It reads what came back, notices whose world the results lean towards, and targets the gaps: `find_swaps` from every person, starting with whoever was served least. A real run: *"The bridges leaned towards classic Afro-jazz and gospel, so I am exploring what from Sipho's modern Afrobeats universe Gogo Thandi and the family would love."*
+3. **Plan.** It calls `submit_plan`. The server attaches the real Qloo entities, drops anything without evidence, and adds counts (Qloo lookups, rounds).
+4. **Learn.** After the visit, what people loved becomes part of everyone's taste and what they didn't is passed back, and the next plan says what it changed: *"We kept the upbeat African rhythms that worked so well with Davido, while shifting away from sports drama toward The Boy Who Harnessed the Wind."*
+
+**The agent is visible, not hidden behind a spinner.** Every lookup carries the agent's own one-line reason, the trail is grouped into rounds, and the results open with an *Agent's notes* card: what it explored, what it noticed, how it balanced the group, and what it changed after the last visit.
 
 Each step streams to the browser, so you watch the agent research.
 

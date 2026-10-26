@@ -290,11 +290,12 @@ function exploring() {
   return `
   ${stepper(1)}
   <h1 style="text-align:center">Exploring your tastes…</h1>
+  <p class="agent-line">${svg('spark')} This is an AI agent. It decides which Qloo searches to run, reads what comes back, and keeps going until it has a plan. Each step below says why it made that move.</p>
   <p class="lead" style="text-align:center;margin:0 auto">The agent is searching Qloo's taste graph for ${esc(listOf(names()))}. This takes about half a minute.</p>
   <div class="card explore-card">
     <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><path d="M26 6.51A14 14 0 0 1 26 29.49A14 14 0 0 1 26 6.51Z" fill="url(#cg-lens)"/><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="34" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg><span>Exploring your tastes…</span></div>
     <ul class="trail" aria-live="polite">
-      ${trail.map(t => `<li class="${t.type}">${esc(t.text)}</li>`).join('')}
+      ${trail.map(trailItem).join('')}
       ${error ? '' : '<li class="thinking">Thinking…</li>'}
     </ul>
     ${error ? `<p class="error" role="alert">${esc(error)}</p><button class="btn" data-action="people">Try again</button>` : ''}
@@ -321,6 +322,10 @@ const act = e => {
   const [label, icon, url] = ACT[e?.type] || [];
   return label ? `<a class="act" href="${esc(url(e))}" target="_blank" rel="noopener">${svg(icon)} ${label}<span class="sr-only"> ${esc(e.name)} (opens in a new tab)</span></a>` : '';
 };
+// Research trail: rounds, each lookup with the agent's own reason, and what came back.
+const trailItem = t => t.type === 'round'
+  ? `<li class="round">Round ${t.n} · ${esc(t.text)}</li>`
+  : `<li class="${t.type}">${esc(t.text)}${t.reason ? `<span class="reason">${esc(t.reason)}</span>` : ''}</li>`;
 const tagLine = e => [TYPE_LABEL[e.type] || e.type, ...(e.tags || []).slice(0, 2)].filter(Boolean).map(esc).join(' · ');
 
 function row(item, title) {
@@ -387,6 +392,15 @@ function plan() {
         <h1>Here's what we found</h1>
         <p>${esc(p.headline)}</p>
       </section>
+      ${p.notes?.text ? `<div class="notes card">
+        <span class="icon" style="background:var(--s3)">${svg('spark')}</span>
+        <div>
+          <h3>Agent's notes</h3>
+          <p>${esc(p.notes.text)}</p>
+          ${p.notes.feedback ? `<p class="learned"><b>What I changed after your last visit:</b> ${esc(p.notes.feedback)}</p>` : ''}
+          <p class="meta">${p.notes.lookups} Qloo lookups in ${p.notes.rounds} round${p.notes.rounds === 1 ? '' : 's'} · <button class="link" data-action="scroll" data-to="research">See every step</button></p>
+        </div>
+      </div>` : ''}
       ${state.demo ? `<div class="demo-strip"><span>${svg('spark')} That was the live example. Common Ground works the same way for your own people.</span><button class="btn small" data-action="scroll" data-to="who">Try it with your own people ${svg('arrow')}</button></div>` : ''}
       <div class="dash-body">
         <div class="cols3" id="found">
@@ -424,8 +438,8 @@ function plan() {
 
         <div class="section-title" id="research"><h2>How the agent got here</h2></div>
         <details class="card">
-          <summary>${state.trail.filter(t => t.type === 'step').length} steps through Qloo's taste graph</summary>
-          <ul class="trail" style="margin-top:12px">${state.trail.map(t => `<li class="${t.type}">${esc(t.text)}</li>`).join('')}</ul>
+          <summary>Every step the agent took, with its reasons</summary>
+          <ul class="trail" style="margin-top:12px">${state.trail.map(trailItem).join('')}</ul>
         </details>
 
         <div class="section-title" id="past"><h2>Past visits</h2></div>

@@ -305,3 +305,17 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .act:hover { background: var(--indigo); color: #fff; }
 .act svg { width: 12px; height: 12px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- visible agent ---------- */
+.agent-line { display: flex; gap: 10px; align-items: flex-start; max-width: 620px; margin: 0 auto 14px; padding: 12px 16px; border-radius: 12px; background: var(--s3); color: var(--ink); font-size: .92rem; }
+.agent-line svg { flex: none; width: 20px; height: 20px; margin-top: 2px; }
+.trail li.round { padding-left: 0; margin-top: 10px; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--indigo); }
+.trail li.round::before { display: none; }
+.trail .reason { display: block; font-size: .84rem; color: var(--body); font-style: italic; margin-top: 2px; }
+.notes { display: flex; gap: 16px; align-items: flex-start; margin: 16px 24px 0; }
+.notes .icon { width: 46px; height: 46px; margin: 0; flex: none; }
+.notes h3 { margin-bottom: 4px; }
+.notes p { margin: 0 0 6px; }
+.notes .learned { background: var(--s2); border-radius: 10px; padding: 8px 12px; color: var(--ink); }
+.notes .link { font-size: .8rem; }
+@media (max-width: 760px) { .notes { margin: 12px 16px 0; } }
