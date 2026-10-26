@@ -4,7 +4,7 @@
 
 Built for the [Qloo Agentic Hackathon](https://qloo-agentic-hackathon.devpost.com/).
 
-**Live demo:** https://common-ground-ecru.vercel.app Click **Watch a live example** to see the agent plan Sunday lunch for Gogo Thandi and her three grandkids, no typing needed. Then try it with your own people.
+**Live demo:** https://commonground-agent.vercel.app Click **Watch a live example** to see the agent plan Sunday lunch for Gogo Thandi and her three grandkids, no typing needed. Then try it with your own people.
 
 A gogo who loves Jim Reeves. Grandkids who love Burna Boy, Lucky Dube and Ladysmith Black Mambazo. They love each other, but Sunday lunch runs out of things to say. About 1 in 6 people worldwide experience loneliness (WHO, 2025), and often the people we love are right there. We've just run out of things to share.
 
