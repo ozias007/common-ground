@@ -135,8 +135,9 @@ function home() {
         <p>Whether it's a grandparent and grandchild, a couple, a parent and teen, or a carer and resident, Common Ground helps you discover what you can enjoy together.</p>
         <div class="hero-actions">
           <button class="btn" data-action="scroll" data-to="who">Get started ${svg('arrow')}</button>
-          <button class="btn ghost" data-action="example">See it with Gogo's family</button>
+          <button class="btn ghost" data-action="example">Watch a live example</button>
         </div>
+        <p class="demo-note">The example: <b>Gogo Thandi</b> (Jim Reeves) and her grandkids who love Burna Boy, Lucky Dube and Ladysmith Black Mambazo. One click, no typing. You watch the agent search Qloo live, about a minute.</p>
         <p class="why">${svg('people')}<span><b>Because connection matters.</b><br>1 in 6 people worldwide experience loneliness (WHO, 2025).</span></p>
       </div>
     </div>
@@ -181,10 +182,21 @@ function home() {
           <p class="eyebrow">Meet the agent</p>
           <h2>Powered by Qloo.<br>Built for real life.</h2>
           <p>Our agent uses Qloo's cultural intelligence to bring different worlds together, across music, film, food, places, books and more. It decides what to look up, compares what it finds, and shows you which suggestions came straight from Qloo's data.</p>
-          <button class="btn" data-action="example">Try it with Gogo's family ${svg('arrow')}</button>
         </div>
         ${hub()}
       </div>
+      <div class="demo-card">
+        <div>
+          <p class="eyebrow">Live example</p>
+          <h3>Sunday lunch at Gogo's</h3>
+          <p>Gogo Thandi and her three grandkids love each other, but not the same music. See what the agent finds for them in Johannesburg.</p>
+        </div>
+        <ul class="demo-people">
+          ${EXAMPLE.people.map((p, i) => `<li><span class="avatar" style="background:var(--${TINTS[i]})">${esc(p.name[0])}</span><span><strong>${esc(p.name)}</strong>${p.favourites.map(f => esc(f.name)).join(', ')}</span></li>`).join('')}
+        </ul>
+        <button class="btn" data-action="example">Run the live example ${svg('arrow')}</button>
+      </div>
+
       <div class="trust">
         <span>${svg('check')} Real taste data</span>
         <span>${svg('link')} Cross-category insights</span>
@@ -334,6 +346,7 @@ function plan() {
         <h1>Here's what we found</h1>
         <p>${esc(p.headline)}</p>
       </section>
+      ${state.demo ? `<div class="demo-strip"><span>${svg('spark')} That was the live example. Common Ground works the same way for your own people.</span><button class="btn small" data-action="scroll" data-to="who">Try it with your own people ${svg('arrow')}</button></div>` : ''}
       <div class="dash-body">
         <div class="cols3" id="found">
           ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd ${names().length === 2 ? 'both' : 'all'} enjoy`, p.bridges, b => row(b))}
@@ -434,7 +447,7 @@ const actions = {
   plan: () => go('plan'),
   reset: () => { state = fresh(); go('home'); },
   example: () => {
-    state = { ...fresh(), ...structuredClone(EXAMPLE) };
+    state = { ...fresh(), ...structuredClone(EXAMPLE), demo: true };
     run();
   },
   group: el => {
