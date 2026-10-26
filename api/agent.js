@@ -2,6 +2,8 @@
 import { runAgent, GROUP_TONE } from '../lib/agent.js';
 
 const ID = /^[0-9A-F-]{36}$/i;
+const SIX_HOURS = 6 * 60 * 60 * 1000;
+const recent = new Map(); // ponytail: per-instance memory, never persisted (Qloo data stays out of storage); KV if cold starts hurt
 
 function validate(body) {
   const person = p => p && typeof p.name === 'string' && p.name.trim() && p.name.length <= 40
@@ -25,8 +27,19 @@ export default async function handler(req, res) {
 
   res.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-cache' });
   const emit = event => res.write(JSON.stringify(event) + '\n');
+  const key = JSON.stringify(req.body);
+  const hit = recent.get(key);
+  if (hit && Date.now() - hit.at < SIX_HOURS) { // same people, same favourites: replay instead of spending free-tier quota
+    for (const event of hit.events) { emit(event); await new Promise(r => setTimeout(r, 120)); }
+    return res.end();
+  }
+  const events = [];
   try {
-    emit({ type: 'plan', plan: await runAgent(req.body, emit) });
+    const plan = await runAgent(req.body, event => { events.push(event); emit(event); });
+    events.push({ type: 'plan', plan });
+    emit(events.at(-1));
+    recent.set(key, { at: Date.now(), events });
+    if (recent.size > 50) recent.delete(recent.keys().next().value);
   } catch (err) {
     console.error(err);
     emit({ type: 'error', text: 'The agent hit a problem. Please try again in a minute.' });
