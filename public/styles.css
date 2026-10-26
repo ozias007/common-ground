@@ -283,3 +283,6 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .demo-strip svg { width: 20px; height: 20px; flex: none; }
 @media (max-width: 960px) { .demo-card { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .demo-people { grid-template-columns: 1fr; } .demo-strip { margin: 12px 16px 0; } }
+.results .thumb.round { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--indigo); }
+.results .thumb.round svg { width: 18px; height: 18px; }
+.location .results { right: 0; }

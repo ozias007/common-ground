@@ -16,7 +16,10 @@ export function validate(body) {
   if (body.groupType === 'first_date' && people.length !== 2) return 'A first date is two people.';
   if (!people.every(person)) return 'Each person needs a name and 1 to 8 favourites.';
   if (new Set(people.map(p => p.name.trim().toLowerCase())).size !== people.length) return 'Give everyone a different name.';
-  if (body.city && (typeof body.city !== 'string' || body.city.length > 60)) return 'City is too long.';
+  if (body.city && (typeof body.city !== 'string' || body.city.length > 100)) return 'City is too long.';
+  const { point } = body;
+  const coord = (v, max) => typeof v === 'number' && Math.abs(v) <= max; // numbers only: they go straight into Qloo's POINT()
+  if (point !== undefined && !(coord(point?.lat, 90) && coord(point?.lon, 180) && Object.keys(point).length === 2)) return 'That location could not be read.';
   if (body.history && (!Array.isArray(body.history) || body.history.length > 5)) return 'Too much history.';
   return null;
 }

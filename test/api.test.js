@@ -23,7 +23,12 @@ test('rejects bad requests with a plain-English reason', () => {
     [body({ people: [person('Gogo'), { name: 'Sipho', favourites: [] }] }), 'Each person needs a name and 1 to 8 favourites.'],
     [body({ people: [person('Gogo'), { name: 'Sipho', favourites: [{ ...fav, id: 'not-an-id' }] }] }), 'Each person needs a name and 1 to 8 favourites.'],
     [body({ people: [person('Gogo'), person(' gogo ')] }), 'Give everyone a different name.'],
-    [body({ city: 'x'.repeat(61) }), 'City is too long.'],
+    [body({ city: 'x'.repeat(101) }), 'City is too long.'],
+    [body({ point: { lat: null, lon: null } }), 'That location could not be read.'],
+    [body({ point: { lat: -29.8, lon: 31 } , city: 'Durban' }), null],
+    [body({ point: { lat: 95, lon: 31 } }), 'That location could not be read.'],
+    [body({ point: { lat: '1) OR (1', lon: 31 } }), 'That location could not be read.'],
+    [body({ point: { lat: 1, lon: 2, extra: 3 } }), 'That location could not be read.'],
     [body({ history: new Array(6).fill({}) }), 'Too much history.'],
   ];
   for (const [input, reason] of cases) assert.equal(validate(input), reason, JSON.stringify(input)?.slice(0, 80));

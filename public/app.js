@@ -20,7 +20,8 @@ const TYPE_ICON = { artist: 'music', movie: 'film', tv_show: 'film', book: 'book
 // One-click demo: Sunday lunch at Gogo's with three grandkids who all like different things.
 const EXAMPLE = {
   groupType: 'grandparent',
-  city: 'Johannesburg',
+  city: 'Johannesburg, Gauteng, South Africa',
+  point: { lat: -26.2041, lon: 28.0473 },
   people: [
     { name: 'Gogo Thandi', favourites: [{ id: 'E36D3B36-915A-470B-ACC7-82BF4849E93C', name: 'Jim Reeves', type: 'artist' }, { id: 'AFC7571E-5679-4362-8643-697BA0F60D0B', name: 'Miriam Makeba', type: 'artist' }] },
     { name: 'Sipho', favourites: [{ id: '4A322BDD-04A3-4369-8234-B38A7FB485D9', name: 'Burna Boy', type: 'artist' }] },
@@ -52,7 +53,7 @@ const ICON = {
 };
 const svg = name => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
 
-const fresh = () => ({ screen: 'home', groupType: null, people: [], city: '', history: [], plan: null, trail: [] });
+const fresh = () => ({ screen: 'home', groupType: null, people: [], city: '', point: null, history: [], plan: null, trail: [] });
 let state = load();
 let trail = [];
 let error = '';
@@ -228,7 +229,7 @@ function people() {
     <div class="card">
       <div class="person-head">
         <span class="avatar" style="background:var(--${TINTS[i % TINTS.length]})" aria-hidden="true">${esc((p.name.trim()[0] || i + 1).toString().toUpperCase())}</span>
-        <label>Person ${i + 1}<input class="field" placeholder="Name, e.g. Grandma" value="${esc(p.name)}" data-name="${i}" maxlength="40"></label>
+        <label>Person ${i + 1}<input class="field" placeholder="Their first name" value="${esc(p.name)}" data-name="${i}" maxlength="40"></label>
         ${state.people.length > 2 ? `<button class="remove" data-action="remove-person" data-i="${i}" aria-label="Remove ${esc(p.name || 'this person')}">×</button>` : ''}
       </div>
       <p class="label" data-enjoys="${i}">${enjoys(p.name)}</p>
@@ -250,7 +251,10 @@ function people() {
     <span class="pin">${svg('pin')}</span>
     <div>
       <p class="label">Optional: add a location</p>
-      <input class="field" placeholder="e.g. Johannesburg, Cape Town, Durban…" value="${esc(state.city)}" data-city aria-label="City" maxlength="60">
+      <div class="search">
+        <input class="field" placeholder="Start typing a town or city, e.g. Durban" value="${esc(state.city)}" data-city aria-label="Location" autocomplete="off" maxlength="100">
+        <ul class="results" data-places hidden></ul>
+      </div>
     </div>
   </div>
   ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
@@ -512,6 +516,7 @@ async function run() {
       body: JSON.stringify({
         groupType: state.groupType,
         city: state.city.trim() || undefined,
+        point: state.point || undefined,
         people: state.people.map(p => ({ name: p.name.trim(), favourites: p.favourites })),
         history: state.history,
       }),
@@ -545,6 +550,13 @@ async function run() {
 document.addEventListener('click', e => { // header buttons live outside #app
   const pick = e.target.closest('[data-pick]');
   if (pick) return addFavourite(pick);
+  const place = e.target.closest('[data-place]');
+  if (place) {
+    const { label, lat, lon } = JSON.parse(place.dataset.place);
+    Object.assign(state, { city: label, point: { lat, lon } });
+    save();
+    return render();
+  }
   const el = e.target.closest('[data-action]');
   if (!el) return;
   e.preventDefault();
@@ -560,15 +572,46 @@ app.addEventListener('input', e => {
     app.querySelector(`[data-enjoys="${t.dataset.name}"]`).innerHTML = enjoys(t.value);
     save();
   }
-  if (t.dataset.city !== undefined) { state.city = t.value; save(); }
+  if (t.dataset.city !== undefined) { state.city = t.value; state.point = null; save(); placesSoon(t.value.trim()); }
   if (t.dataset.search !== undefined) searchSoon(+t.dataset.search, t.value.trim());
 });
 
 app.addEventListener('keydown', e => {
+  if (e.target.dataset.city !== undefined) {
+    if (e.key === 'Escape') app.querySelector('[data-places]').hidden = true;
+    if (e.key === 'Enter') { e.preventDefault(); app.querySelector('[data-places] [data-place]')?.click(); }
+    return;
+  }
   if (e.target.dataset.search === undefined) return;
   if (e.key === 'Escape') app.querySelector(`[data-results="${e.target.dataset.search}"]`).hidden = true;
   if (e.key === 'Enter') { e.preventDefault(); app.querySelector(`[data-results="${e.target.dataset.search}"] [data-pick]`)?.click(); }
 });
+
+// Town and city suggestions come from Photon (OpenStreetMap). Picking one gives exact coordinates,
+// because Qloo matches place names loosely ("Durban" can land in Durbanville).
+let placeTimer;
+function placesSoon(q) {
+  clearTimeout(placeTimer);
+  const list = app.querySelector('[data-places]');
+  if (q.length < 2) { list.hidden = true; return; }
+  placeTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=en&layer=city&layer=district&layer=locality`);
+      const seen = new Set();
+      const places = (await res.json()).features.map(f => {
+        const { name, state: region, country } = f.properties;
+        const [lon, lat] = f.geometry.coordinates;
+        return { label: [name, region, country].filter(Boolean).join(', '), name, where: [region, country].filter(Boolean).join(', '), lat, lon };
+      }).filter(p => !seen.has(p.label) && seen.add(p.label));
+      if (app.querySelector('[data-city]')?.value.trim() !== q) return; // the user kept typing
+      list.hidden = !places.length;
+      list.innerHTML = places.map(p => `<li><button data-place='${esc(JSON.stringify({ label: p.label, lat: p.lat, lon: p.lon }))}'>
+        <span class="thumb round">${svg('pin')}</span><span>${esc(p.name)}<small>${esc(p.where)}</small></span></button></li>`).join('');
+    } catch {
+      list.hidden = true; // suggestions are a nicety; typing a city still works
+    }
+  }, 250);
+}
 
 let timer;
 let latest = 0;
