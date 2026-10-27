@@ -280,10 +280,11 @@ function people() {
   const max = PAIRS.includes(state.groupType) ? 2 : MAX_PEOPLE;
   return `
   ${venn}
-  <button class="link back" data-action="home">${svg('back')} Back</button>
+  ${state.plan ? `<button class="link back" data-action="plan">${svg('back')} Back to your plan</button>` : `<button class="link back" data-action="home">${svg('back')} Back</button>`}
   ${stepper(0)}
-  <h1>Create a connection</h1>
-  <p class="lead">${esc(g.title)}. Tell us about the people. Add a few favourites each, about 3 works best: anything from music and films to food, places and books. You can fill in for someone else.</p>
+  <h1>${state.plan ? 'Edit your people' : 'Create a connection'}</h1>
+  ${state.plan ? `<p class="invite-note">${svg('spark')} <span>Changed your mind about something, or learned something new? Edit the favourites below, then tap <b>Update our plan</b>. The agent keeps everything it learned from your past visits.</span></p>` : ''}
+  ${state.plan ? '' : `<p class="lead">${esc(g.title)}. Tell us about the people. Add a few favourites each, about 3 works best: anything from music and films to food, places and books. You can fill in for someone else.</p>`}
   ${state.invitedBy ? `<p class="invite-note">${svg('people')} <span><b>${esc(state.invitedBy)}</b> already added their favourites. Add yours below, then tap <b>Next</b>.</span></p>` : ''}
   ${state.groupType === 'first_date' ? `<p class="safety">${state.invitedBy ? '' : 'Add what you know about your date (or ask them for a few favourites). '}Stay safe: meet somewhere public, tell a friend where you're going, and plan your own way home.</p>` : ''}
   ${state.groupType === 'couple' ? `<p class="safety">Common Ground helps couples who've grown distant find things to enjoy together. It isn't counselling. If you feel unsafe at home, please reach out: in South Africa call the GBV Command Centre on <a href="tel:0800428428">0800 428 428</a>, or find a counsellor through <a href="https://famsa.org.za" target="_blank" rel="noopener">FAMSA</a>.</p>` : ''}
@@ -328,7 +329,8 @@ function people() {
     ${state.people.some(p => p.favourites.length) ? `<button class="btn ghost" data-action="invite">${svg('link')} Invite them to add theirs</button>
     <span class="hint">Your picks travel inside the link, so only send it to them.</span>` : ''}
     <span class="spacer"></span>
-    <button class="btn" data-action="run">Next: Explore ${svg('arrow')}</button>
+    ${state.plan ? `<button class="btn ghost" data-action="plan">Back to your plan</button>` : ''}
+    <button class="btn" data-action="run">${state.plan ? 'Update our plan' : 'Next: Explore'} ${svg('arrow')}</button>
   </div>`;
 }
 
@@ -557,7 +559,7 @@ const actions = {
     document.getElementById(el.dataset.to)?.scrollIntoView();
   },
   people: () => { error = ''; go('people'); },
-  plan: () => go('plan'),
+  plan: () => { rememberConnection(); go('plan'); },
   reset: () => { // you've seen the welcome already: go straight to choosing who it's for
     state = fresh();
     go('home');

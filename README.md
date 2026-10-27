@@ -22,7 +22,7 @@ Adding interests is a search over Qloo: type a name, optionally narrow it with a
 
 **Each person can add their own favourites.** After adding yours, tap *Invite them to add theirs*: your picks travel inside a link (no accounts, no database) that you send on WhatsApp. The other person opens it, sees your card filled in, adds theirs and gets the plan. Links are checked strictly when opened, and anything that doesn't look like a genuine invite is ignored.
 
-**Your connections are kept.** Every connection with a plan is saved on your device and listed on the home page ("Gogo Thandi, Sipho, Lerato and Ayanda · Visit 3 · planned 2 days ago"). Open one to go straight back to its plan, past visits and what the agent has learned; starting a new one never wipes the old ones.
+**Your connections are kept.** Every connection with a plan is saved on your device and listed on the home page ("Gogo Thandi, Sipho, Lerato and Ayanda · Visit 3 · planned 2 days ago"). Open one to go straight back to its plan, past visits and what the agent has learned; starting a new one never wipes the old ones. Tastes change, so you can edit anyone's favourites at any time and either go back to the current plan or tap *Update our plan*; the agent keeps what it learned from past visits.
 
 After the visit you tap what landed. The agent folds that into everyone's taste and plans the next visit.
 
