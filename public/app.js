@@ -558,7 +558,11 @@ const actions = {
   },
   people: () => { error = ''; go('people'); },
   plan: () => go('plan'),
-  reset: () => { state = fresh(); go('home'); },
+  reset: () => { // you've seen the welcome already: go straight to choosing who it's for
+    state = fresh();
+    go('home');
+    document.getElementById('who')?.scrollIntoView();
+  },
   'open-saved': el => {
     const c = savedConnections().find(x => x.id === el.dataset.id);
     if (!c) return render();
