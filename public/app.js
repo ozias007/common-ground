@@ -1,6 +1,8 @@
 // Common Ground front end: plain JS, one state object, screens re-rendered from it.
 import { encodeInvite, decodeInvite } from './invite.js';
 const KEY = 'commonground.v1';
+const SAVED_KEY = 'commonground.connections'; // every connection with a plan, newest first
+const MAX_SAVED = 12;
 const MAX_PEOPLE = 5;
 const MAX_FAVS = 8;
 
@@ -69,7 +71,8 @@ const ICON = {
 };
 const svg = name => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
 
-const fresh = () => ({ screen: 'home', groupType: null, people: [], city: '', point: null, history: [], plan: null, trail: [] });
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const fresh = () => ({ id: newId(), screen: 'home', groupType: null, people: [], city: '', point: null, history: [], plan: null, trail: [] });
 let state = load();
 let trail = [];
 let error = '';
@@ -82,6 +85,24 @@ function load() {
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify({ ...state, screen: state.screen === 'exploring' ? 'people' : state.screen })); } catch { /* private mode: app still works */ }
 }
+
+// ---------- my connections (kept on this device only, no account needed) ----------
+function savedConnections() {
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY)) || []; } catch { return []; }
+}
+function writeSaved(list) {
+  try { localStorage.setItem(SAVED_KEY, JSON.stringify(list.slice(0, MAX_SAVED))); } catch { /* storage full or blocked: the current plan still works */ }
+}
+// Called whenever a plan arrives, so every visit and what the agent learned is kept.
+function rememberConnection() {
+  if (!state.plan) return;
+  const { screen, invitedBy, ...keep } = state;
+  writeSaved([{ ...keep, savedAt: Date.now() }, ...savedConnections().filter(c => c.id !== state.id)]);
+}
+const ago = t => {
+  const days = Math.floor((Date.now() - t) / 864e5);
+  return days < 1 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
+};
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const app = document.getElementById('app');
@@ -159,7 +180,7 @@ function home() {
       </div>
     </div>
   </section>
-
+  ${myConnections()}
   <section class="how" id="how">
     <div class="wrap">
       <h2>How it works</h2>
@@ -220,6 +241,31 @@ function home() {
         <span>${svg('heart')} Meaningful connections</span>
       </div>
     </div>
+  </section>`;
+}
+
+function myConnections() {
+  const list = savedConnections();
+  if (!list.length) return '';
+  return `
+  <section class="mine wrap" id="mine" aria-labelledby="mine-title">
+    <h2 id="mine-title">Your connections</h2>
+    <p class="sub">Saved on this device. Open one to see your plan and carry on where you left off.</p>
+    <ul class="mine-list">
+      ${list.map(c => `
+      <li class="card">
+        <span class="icon" style="background:var(--${GROUPS[c.groupType]?.tint || 's3'})">${svg(GROUPS[c.groupType]?.icon || 'people')}</span>
+        <div class="mine-text">
+          <strong>${esc(listOf(c.people.map(p => p.name.trim()).filter(Boolean)))}</strong>
+          <span class="meta">${esc(c.demo ? 'Live example' : GROUPS[c.groupType]?.title || '')} · Visit ${Math.min(c.history.length + 1, 5)} · planned ${ago(c.savedAt)}</span>
+          <span class="meta">${esc(c.plan.visit.title)}</span>
+        </div>
+        <div class="mine-actions">
+          <button class="btn small" data-action="open-saved" data-id="${esc(c.id)}">Open</button>
+          <button class="link" data-action="delete-saved" data-id="${esc(c.id)}" aria-label="Delete the connection with ${esc(listOf(c.people.map(p => p.name)))}">Delete</button>
+        </div>
+      </li>`).join('')}
+    </ul>
   </section>`;
 }
 
@@ -513,8 +559,24 @@ const actions = {
   people: () => { error = ''; go('people'); },
   plan: () => go('plan'),
   reset: () => { state = fresh(); go('home'); },
+  'open-saved': el => {
+    const c = savedConnections().find(x => x.id === el.dataset.id);
+    if (!c) return render();
+    state = { ...fresh(), ...c, screen: 'plan' };
+    feedback = {};
+    expanded = {};
+    go('plan');
+  },
+  'delete-saved': el => {
+    const c = savedConnections().find(x => x.id === el.dataset.id);
+    if (!c || !confirm(`Delete the connection with ${listOf(c.people.map(p => p.name))}? Its plans and past visits will be gone.`)) return;
+    writeSaved(savedConnections().filter(x => x.id !== c.id));
+    if (state.id === c.id) state = fresh();
+    save();
+    render();
+  },
   example: () => {
-    state = { ...fresh(), ...structuredClone(EXAMPLE), demo: true };
+    state = { ...fresh(), ...structuredClone(EXAMPLE), id: 'live-example', demo: true }; // one slot, however often it's run
     run();
   },
   group: el => {
@@ -617,7 +679,7 @@ async function run() {
       buffer = lines.pop();
       for (const line of lines.filter(Boolean)) {
         const event = JSON.parse(line);
-        if (event.type === 'plan') { state.plan = event.plan; state.trail = trail; return go('plan'); }
+        if (event.type === 'plan') { state.plan = event.plan; state.trail = trail; rememberConnection(); return go('plan'); }
         if (event.type === 'error') throw new Error(event.text);
         trail.push(event);
         if (state.screen === 'exploring') {
@@ -758,6 +820,7 @@ function openInvite() {
 // A link pasted into a tab where the app is already open only changes the #part, so listen for that too.
 window.addEventListener('hashchange', () => { if (openInvite()) go('people'); });
 
+if (state.plan && !savedConnections().some(c => c.id === state.id)) rememberConnection();
 const invited = openInvite();
 render();
 if (invited) window.scrollTo(0, 0);

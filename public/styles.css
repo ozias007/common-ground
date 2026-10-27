@@ -333,3 +333,15 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 main { min-height: 75vh; } /* keeps the footer down while the app loads */
 .trail .result { display: block; font-size: .8rem; color: var(--muted); margin-top: 2px; }
 .visit { margin-top: 16px; margin-bottom: 16px; }
+
+/* ---------- my connections ---------- */
+.mine { padding-top: 40px; padding-bottom: 8px; }
+.mine-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.mine-list .card { display: flex; gap: 14px; align-items: center; padding: 16px; }
+.mine-list .icon { width: 46px; height: 46px; margin: 0; flex: none; }
+.mine-list .icon svg { width: 22px; height: 22px; }
+.mine-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.mine-text strong { color: var(--ink); font-weight: 600; }
+.mine-text .meta:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine-actions { display: grid; gap: 6px; justify-items: center; }
+.mine-actions .link { font-size: .8rem; color: var(--muted); }

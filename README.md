@@ -22,6 +22,8 @@ Adding interests is a search over Qloo: type a name, optionally narrow it with a
 
 **Each person can add their own favourites.** After adding yours, tap *Invite them to add theirs*: your picks travel inside a link (no accounts, no database) that you send on WhatsApp. The other person opens it, sees your card filled in, adds theirs and gets the plan. Links are checked strictly when opened, and anything that doesn't look like a genuine invite is ignored.
 
+**Your connections are kept.** Every connection with a plan is saved on your device and listed on the home page ("Gogo Thandi, Sipho, Lerato and Ayanda · Visit 3 · planned 2 days ago"). Open one to go straight back to its plan, past visits and what the agent has learned; starting a new one never wipes the old ones.
+
 After the visit you tap what landed. The agent folds that into everyone's taste and plans the next visit.
 
 Works for 2 to 5 people: grandparent and grandchildren, couples who've grown distant, parents and teens, carers and residents, and two people about to go on a first date who want something to talk about.
@@ -77,7 +79,7 @@ Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMIN
 
 ## Privacy and safety
 
-- No accounts. What you type stays in your browser (localStorage) and is sent only to plan your visit.
+- No accounts. What you type, and your saved connections, stay in your browser (localStorage) and are sent only to plan your visit.
 - Invite links carry the sender's picks in the link itself, and the app says so before you share one.
 - Qloo responses are never stored in the repo; the server keeps recent plans in memory only.
 - Town suggestions come straight from the browser to [Photon](https://photon.komoot.io) (OpenStreetMap data). Picking one sends exact coordinates so Qloo searches within 15 km.
