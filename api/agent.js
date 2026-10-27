@@ -24,6 +24,15 @@ export function validate(body) {
   return null;
 }
 
+// Say what kind of problem it was, without passing on internal details.
+export function explain(err) {
+  const m = String(err?.message || err);
+  if (/busy or out of quota/.test(m)) return "The AI that plans your visit is busy right now. Please try again in a minute.";
+  if (/^Qloo/.test(m)) return "Qloo's taste data isn't responding right now. Please try again in a minute.";
+  if (/ran out of steps/.test(m)) return "The agent couldn't finish a plan this time. Try again, or add one more favourite each.";
+  return 'The agent hit a problem. Please try again in a minute.';
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.writeHead(405).end();
   const problem = validate(req.body);
@@ -46,7 +55,7 @@ export default async function handler(req, res) {
     if (recent.size > 50) recent.delete(recent.keys().next().value);
   } catch (err) {
     console.error(err);
-    emit({ type: 'error', text: 'The agent hit a problem. Please try again in a minute.' });
+    emit({ type: 'error', text: explain(err) });
   }
   res.end();
 }

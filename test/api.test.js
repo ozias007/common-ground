@@ -33,3 +33,11 @@ test('rejects bad requests with a plain-English reason', () => {
   ];
   for (const [input, reason] of cases) assert.equal(validate(input), reason, JSON.stringify(input)?.slice(0, 80));
 });
+
+test('errors say what kind of problem it was, without internal details', async () => {
+  const { explain } = await import('../api/agent.js');
+  assert.match(explain(new Error('Every model is busy or out of quota right now')), /AI that plans your visit is busy/);
+  assert.match(explain(new Error('Qloo 503 on /v2/insights: upstream')), /Qloo's taste data isn't responding/);
+  assert.match(explain(new Error('Agent ran out of steps without a plan')), /couldn't finish a plan/);
+  assert.equal(explain(new Error('Gemini 400: secret internals')), 'The agent hit a problem. Please try again in a minute.');
+});
