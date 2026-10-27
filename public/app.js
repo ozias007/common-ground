@@ -164,7 +164,7 @@ function hub() {
 function home() {
   return `
   <section class="hero dark">
-    <div class="hero-photo"><img src="img/hero.jpg" alt="A grandfather and his teenage grandson laughing on a sofa, sharing earphones" width="1264" height="848"></div>
+    <div class="hero-photo"><img src="img/hero.jpg" alt="A grandfather and his teenage grandson walking through a street market, sharing earphones and laughing" width="1264" height="848"></div>
     <div class="wrap">
       <div class="hero-text">
         <p class="eyebrow">Common Ground</p>
@@ -300,6 +300,7 @@ function people() {
       <ul class="chips">
         ${p.favourites.map((f, j) => `<li class="chip">${esc(f.name)} <em>${TYPE_LABEL[f.type] || ''}</em><button data-action="remove-fav" data-i="${i}" data-j="${j}" aria-label="Remove ${esc(f.name)}">×</button></li>`).join('')}
       </ul>
+      ${p.favourites.length >= MAX_FAVS - 2 ? `<p class="limit" role="status">${p.favourites.length >= MAX_FAVS ? `That's the maximum of ${MAX_FAVS}. Remove one to add another.` : `${MAX_FAVS - p.favourites.length} more allowed (${MAX_FAVS} max).`}</p>` : ''}
       <p class="label">Add ${p.favourites.length ? 'more ' : ''}interests</p>
       <div class="cats" role="group" aria-label="Kind of interest">
         ${CATS.map(([key, label]) => `<button class="cat" data-action="cat" data-i="${i}" data-cat="${key}" aria-pressed="${(cats[i] || '') === key}">${label}</button>`).join('')}
@@ -313,7 +314,7 @@ function people() {
       </div>
     </div>`).join('')}
   </div>
-  ${state.people.length < max ? `<button class="btn ghost small" data-action="add-person">+ Add someone</button>` : ''}
+  ${state.people.length < max ? `<button class="btn ghost small" data-action="add-person">+ Add someone</button>${state.people.length === max - 1 ? ` <span class="limit">You can add 1 more person (${max} max).</span>` : ''}` : max > 2 ? `<p class="limit">That's the maximum of ${max} people.</p>` : ''}
   <div class="location">
     <span class="pin">${svg('pin')}</span>
     <div>
@@ -477,7 +478,6 @@ function plan() {
               ${c.hook && c.entity ? `<span class="hook">${esc(c.hook)}</span>` : ''}
               <strong>${esc(c.question)}</strong>
               ${c.followUp ? `<span class="follow">If they light up: ${esc(c.followUp)}</span>` : ''}
-              ${c.entity ? `<span class="meta">About ${esc(c.entity.name)}</span>` : ''}
             </li>`).join('')}</ol>
             <button class="btn small" data-action="save-plan">Save plan</button>
           </div>

@@ -345,3 +345,5 @@ main { min-height: 75vh; } /* keeps the footer down while the app loads */
 .mine-text .meta:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mine-actions { display: grid; gap: 6px; justify-items: center; }
 .mine-actions .link { font-size: .8rem; color: var(--muted); }
+.limit { font-size: .8rem; color: var(--muted); margin: -8px 0 12px; }
+.actions .limit, span.limit { margin: 0 0 0 8px; }
