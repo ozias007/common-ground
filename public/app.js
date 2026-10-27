@@ -149,7 +149,7 @@ function home() {
         <p class="eyebrow">Common Ground</p>
         <h1>Different worlds.<br><span class="grad">Shared moments.</span></h1>
         <p class="lead">An AI companion that finds the shared world between people, using their unique tastes, interests and experiences.</p>
-        <p>Whether it's a grandparent and grandchild, a couple, a parent and teen, or a carer and resident, Common Ground helps you discover what you can enjoy together.</p>
+        <p>Whether it's a grandparent and grandchild, a couple, a parent and teen, a carer and resident, or two people on a first date, Common Ground helps you discover what you can enjoy together.</p>
         <div class="hero-actions">
           <button class="btn" data-action="scroll" data-to="who">Get started ${svg('arrow')}</button>
           <button class="btn ghost" data-action="example">Watch a live example</button>
@@ -239,7 +239,7 @@ function people() {
   <h1>Create a connection</h1>
   <p class="lead">${esc(g.title)}. Tell us about the people. Add a few favourites each, about 3 works best: anything from music and films to food, places and books. You can fill in for someone else.</p>
   ${state.invitedBy ? `<p class="invite-note">${svg('people')} <span><b>${esc(state.invitedBy)}</b> already added their favourites. Add yours below, then tap <b>Next</b>.</span></p>` : ''}
-  ${state.groupType === 'first_date' ? `<p class="safety">Add what you know about your date (or ask them for a few favourites). Stay safe: meet somewhere public, tell a friend where you're going, and plan your own way home.</p>` : ''}
+  ${state.groupType === 'first_date' ? `<p class="safety">${state.invitedBy ? '' : 'Add what you know about your date (or ask them for a few favourites). '}Stay safe: meet somewhere public, tell a friend where you're going, and plan your own way home.</p>` : ''}
   ${state.groupType === 'couple' ? `<p class="safety">Common Ground helps couples who've grown distant find things to enjoy together. It isn't counselling. If you feel unsafe at home, please reach out: in South Africa call the GBV Command Centre on <a href="tel:0800428428">0800 428 428</a>, or find a counsellor through <a href="https://famsa.org.za" target="_blank" rel="noopener">FAMSA</a>.</p>` : ''}
   <div class="people">
     ${state.people.map((p, i) => `
@@ -295,7 +295,7 @@ function exploring() {
   <div class="card explore-card">
     <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><path d="M26 6.51A14 14 0 0 1 26 29.49A14 14 0 0 1 26 6.51Z" fill="url(#cg-lens)"/><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="34" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg><span>Exploring your tastes…</span></div>
     <ul class="trail" aria-live="polite">
-      ${trail.map(trailItem).join('')}
+      ${trailHtml(trail)}
       ${error ? '' : '<li class="thinking">Thinking…</li>'}
     </ul>
     ${error ? `<p class="error" role="alert">${esc(error)}</p><button class="btn" data-action="people">Try again</button>` : ''}
@@ -323,9 +323,15 @@ const act = e => {
   return label ? `<a class="act" href="${esc(url(e))}" target="_blank" rel="noopener">${svg(icon)} ${label}<span class="sr-only"> ${esc(e.name)} (opens in a new tab)</span></a>` : '';
 };
 // Research trail: rounds, each lookup with the agent's own reason, and what came back.
+// Each step and its results share an id, so "found" lines can sit under the lookup that produced them.
+const trailHtml = list => {
+  const found = new Map(list.filter(t => t.type === 'found' && t.id !== undefined).map(t => [t.id, t.text]));
+  return list.filter(t => t.type !== 'found' || t.id === undefined)
+    .map(t => trailItem(t.type === 'step' && found.has(t.id) ? { ...t, result: found.get(t.id) } : t)).join('');
+};
 const trailItem = t => t.type === 'round'
   ? `<li class="round">Round ${t.n} · ${esc(t.text)}</li>`
-  : `<li class="${t.type}">${esc(t.text)}${t.reason ? `<span class="reason">${esc(t.reason)}</span>` : ''}</li>`;
+  : `<li class="${t.type}">${esc(t.text)}${t.reason ? `<span class="reason">${esc(t.reason)}</span>` : ''}${t.result ? `<span class="result">Found: ${esc(t.result)}</span>` : ''}</li>`;
 const tagLine = e => [TYPE_LABEL[e.type] || e.type, ...(e.tags || []).slice(0, 2)].filter(Boolean).map(esc).join(' · ');
 
 function row(item, title) {
@@ -387,7 +393,7 @@ function plan() {
     </nav>
     <div class="dash-main">
       <section class="banner">
-        <div class="photo"><img src="img/family.jpg" alt=""></div>
+        <div class="photo"><img src="img/${state.groupType === 'grandparent' || !GROUPS[state.groupType] || GROUPS[state.groupType].hidden ? 'family' : state.groupType}.jpg" alt=""></div>
         <p class="eyebrow">Your connection · ${esc(listOf(names()))}</p>
         <h1>Here's what we found</h1>
         <p>${esc(p.headline)}</p>
@@ -403,13 +409,6 @@ function plan() {
       </div>` : ''}
       ${state.demo ? `<div class="demo-strip"><span>${svg('spark')} That was the live example. Common Ground works the same way for your own people.</span><button class="btn small" data-action="scroll" data-to="who">Try it with your own people ${svg('arrow')}</button></div>` : ''}
       <div class="dash-body">
-        <div class="cols3" id="found">
-          ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd ${names().length === 2 ? 'both' : 'all'} enjoy`, p.bridges, b => row(b))}
-          ${column('swaps', 'swap', 's5', 'Swaps', "Each person's world, for the others", p.swaps, s => row(s, `${esc(s.from)} shares ${esc(s.entity?.name)}`))}
-          ${column('surprises', 'heart', 's2', 'Surprises', 'Interesting facts from the data', p.surprises || [], s => `
-            <li class="row-item"><span class="thumb round" style="background:var(--s2)">${svg('spark')}</span><div><p style="margin:0;color:var(--ink)">${esc(s.text)}</p>${badge(s.source)}</div></li>`)}
-        </div>
-
         <div class="visit" id="next">
           <div class="card">
             <div class="col-head"><span class="icon" style="background:var(--s4)">${svg('calendar')}</span><div><h3>Your next visit</h3><small>A simple plan to bring you closer</small></div></div>
@@ -436,6 +435,13 @@ function plan() {
           </div>
         </div>
 
+        <div class="cols3" id="found">
+          ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd ${names().length === 2 ? 'both' : 'all'} enjoy`, p.bridges, b => row(b))}
+          ${column('swaps', 'swap', 's5', 'Swaps', "Each person's world, for the others", p.swaps, s => row(s, `${esc(s.from)} shares ${esc(s.entity?.name)}`))}
+          ${column('surprises', 'heart', 's2', 'Surprises', 'Interesting facts from the data', p.surprises || [], s => `
+            <li class="row-item"><span class="thumb round" style="background:var(--s2)">${svg('spark')}</span><div><p style="margin:0;color:var(--ink)">${esc(s.text)}</p>${badge(s.source)}</div></li>`)}
+        </div>
+
         <div class="card after">
           <span class="icon" style="background:var(--s3)">${svg('heart')}</span>
           <div><h3>After your visit</h3><p>Tell us what worked. The agent will learn and plan your next visit.</p></div>
@@ -445,7 +451,7 @@ function plan() {
         <div class="section-title" id="research"><h2>How the agent got here</h2></div>
         <details class="card">
           <summary>Every step the agent took, with its reasons</summary>
-          <ul class="trail" style="margin-top:12px">${state.trail.map(trailItem).join('')}</ul>
+          <ul class="trail" style="margin-top:12px">${trailHtml(state.trail)}</ul>
         </details>
 
         <div class="section-title" id="past"><h2>Past visits</h2></div>
@@ -574,13 +580,17 @@ function validate() {
   if (ns.length !== state.people.length) return 'Give everyone a name.';
   if (new Set(ns.map(n => n.toLowerCase())).size !== ns.length) return 'Give everyone a different name.';
   const empty = state.people.find(p => !p.favourites.length);
-  if (empty) return `Add at least one interest for ${empty.name}.`;
+  if (empty) return `Add at least one interest for ${empty.name.trim().toLowerCase() === 'you' ? 'yourself' : empty.name}.`;
   return '';
 }
 
 async function run() {
   error = validate();
-  if (error) return go('people');
+  if (error) {
+    state.screen = 'people';
+    render();
+    return app.querySelector('.error')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
   trail = [];
   expanded = {};
   go('exploring');
@@ -610,7 +620,10 @@ async function run() {
         if (event.type === 'plan') { state.plan = event.plan; state.trail = trail; return go('plan'); }
         if (event.type === 'error') throw new Error(event.text);
         trail.push(event);
-        if (state.screen === 'exploring') render();
+        if (state.screen === 'exploring') {
+          render();
+          app.querySelector('.trail li:last-child')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
       }
     }
     throw new Error('The agent stopped before finishing. Please try again.');
@@ -640,6 +653,7 @@ document.addEventListener('click', e => { // header buttons live outside #app
 
 app.addEventListener('input', e => {
   const t = e.target;
+  if (error && state.screen === 'people') { error = ''; app.querySelector('.error')?.remove(); }
   if (t.dataset.name !== undefined) {
     state.people[+t.dataset.name].name = t.value;
     const avatar = t.closest('.person-head').querySelector('.avatar');
@@ -701,13 +715,16 @@ function searchSoon(i, q, delay = 300) {
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${cats[i] ? `&cat=${cats[i]}` : ''}`);
       const seen = new Set(); // Qloo sometimes lists the same title more than once
-      const found = (await res.json()).filter(r => TYPE_LABEL[r.type] && !seen.has(r.type + r.name) && seen.add(r.type + r.name));
+      const all = await res.json();
+      const artists = new Set(all.filter(r => r.type === 'artist').map(r => r.name.toLowerCase()));
+      const found = all.filter(r => TYPE_LABEL[r.type] && !(r.type === 'person' && artists.has(r.name.toLowerCase())) && !seen.has(r.type + r.name) && seen.add(r.type + r.name));
       if (ticket !== latest) return;
       list.innerHTML = found.length
         ? found.map(r => `<li><button data-pick='${esc(JSON.stringify({ id: r.id, name: r.name, type: r.type }))}' data-i="${i}">
             ${r.image ? `<img src="${esc(r.image)}" alt="">` : '<span class="thumb"></span>'}
             <span>${esc(r.name)}<small>${TYPE_LABEL[r.type]}${r.description ? ` · ${esc(r.description.slice(0, 70))}` : ''}</small></span></button></li>`).join('')
         : '<li class="hint">Nothing found. Try another spelling, or a related artist or film.</li>';
+      list.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // on phones the keyboard can hide it
     } catch {
       if (ticket === latest) list.innerHTML = '<li class="hint">Search failed. Try again.</li>';
     }
@@ -715,6 +732,7 @@ function searchSoon(i, q, delay = 300) {
 }
 
 function addFavourite(pick) {
+  error = ''; // whatever was missing may be fixed now; Next checks again anyway
   const i = +pick.dataset.i;
   const fav = JSON.parse(pick.dataset.pick);
   const favs = state.people[i].favourites;
@@ -725,13 +743,21 @@ function addFavourite(pick) {
 }
 
 // Opened from an invite link: load the picks, then drop them from the address bar.
-const invite = location.hash.startsWith('#invite=') && decodeInvite(location.hash.slice(8));
-if (location.hash.startsWith('#invite=')) {
+function openInvite() {
+  if (!location.hash.startsWith('#invite=')) return false;
+  const invite = decodeInvite(location.hash.slice(8));
   history.replaceState(null, '', location.pathname);
-  if (invite) {
-    state = { ...fresh(), ...invite, screen: 'people', invitedBy: listOf(invite.people.filter(p => p.favourites.length).map(p => p.name)) };
-    save();
-  } else toast("That invite link didn't open properly. Ask them to send it again.");
+  if (!invite) { toast("That invite link didn't open properly. Ask them to send it again."); return false; }
+  // Default first-date names are written from the sender's side; flip them for the person opening the link.
+  const flip = { you: 'Your date', 'your date': 'You' };
+  for (const p of invite.people) p.name = flip[p.name.trim().toLowerCase()] || p.name;
+  state = { ...fresh(), ...invite, screen: 'people', invitedBy: listOf(invite.people.filter(p => p.favourites.length).map(p => p.name)) };
+  save();
+  return true;
 }
+// A link pasted into a tab where the app is already open only changes the #part, so listen for that too.
+window.addEventListener('hashchange', () => { if (openInvite()) go('people'); });
 
+const invited = openInvite();
 render();
+if (invited) window.scrollTo(0, 0);

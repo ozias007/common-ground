@@ -328,3 +328,8 @@ details.card summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .starters-list .hook { font-size: .84rem; color: var(--body); font-style: italic; }
 .starters-list strong { color: var(--ink); font-weight: 600; }
 .starters-list .follow { font-size: .84rem; color: var(--body); }
+
+/* ---------- walkthrough 2 ---------- */
+main { min-height: 75vh; } /* keeps the footer down while the app loads */
+.trail .result { display: block; font-size: .8rem; color: var(--muted); margin-top: 2px; }
+.visit { margin-top: 16px; margin-bottom: 16px; }
