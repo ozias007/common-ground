@@ -347,3 +347,9 @@ main { min-height: 75vh; } /* keeps the footer down while the app loads */
 .mine-actions .link { font-size: .8rem; color: var(--muted); }
 .limit { font-size: .8rem; color: var(--muted); margin: -8px 0 12px; }
 .actions .limit, span.limit { margin: 0 0 0 8px; }
+
+/* the example's people while it runs (light card, so the dark-band colours are reset) */
+.demo-live { max-width: 620px; margin: 0 auto 14px; }
+.demo-live .eyebrow { color: var(--ink); margin-bottom: 10px; }
+.demo-live .demo-people li { color: var(--body); }
+.demo-live .demo-people strong { color: var(--ink); }

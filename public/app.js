@@ -175,7 +175,6 @@ function home() {
           <button class="btn" data-action="scroll" data-to="who">Get started ${svg('arrow')}</button>
           <button class="btn ghost" data-action="example">Watch a live example</button>
         </div>
-        <p class="demo-note">The example: <b>Gogo Thandi</b> (Jim Reeves) and her grandkids who love Burna Boy, Lucky Dube and Ladysmith Black Mambazo. One click, no typing. You watch the agent search Qloo live, about a minute.</p>
         <p class="why">${svg('people')}<span><b>Because connection matters.</b><br>1 in 6 people worldwide experience loneliness (WHO, 2025).</span></p>
       </div>
     </div>
@@ -230,7 +229,7 @@ function home() {
           <p>Gogo Thandi and her three grandkids love each other, but not the same music. See what the agent finds for them in Johannesburg.</p>
         </div>
         <ul class="demo-people">
-          ${EXAMPLE.people.map((p, i) => `<li><span class="avatar" style="background:var(--${TINTS[i]})">${esc(p.name[0])}</span><span><strong>${esc(p.name)}</strong>${p.favourites.map(f => esc(f.name)).join(', ')}</span></li>`).join('')}
+          ${examplePeople()}
         </ul>
         <button class="btn" data-action="example">Run the live example ${svg('arrow')}</button>
       </div>
@@ -335,11 +334,17 @@ function people() {
   </div>`;
 }
 
+const examplePeople = () => EXAMPLE.people.map((p, i) => `<li><span class="avatar" style="background:var(--${TINTS[i]})">${esc(p.name[0])}</span><span><strong>${esc(p.name)}</strong>${p.favourites.map(f => esc(f.name)).join(', ')}</span></li>`).join('');
+
 function exploring() {
   return `
   ${stepper(1)}
   <h1 style="text-align:center">Exploring your tastes…</h1>
   <p class="agent-line">${svg('spark')} This is an AI agent. It decides which Qloo searches to run, reads what comes back, and keeps going until it has a plan. Each step below says why it made that move.</p>
+  ${state.demo ? `<div class="card demo-live">
+    <p class="eyebrow">Live example · Sunday lunch at Gogo's, Johannesburg</p>
+    <ul class="demo-people">${examplePeople()}</ul>
+  </div>` : ''}
   <p class="lead" style="text-align:center;margin:0 auto">The agent is searching Qloo's taste graph for ${esc(listOf(names()))}. This takes about half a minute.</p>
   <div class="card explore-card">
     <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><path d="M26 6.51A14 14 0 0 1 26 29.49A14 14 0 0 1 26 6.51Z" fill="url(#cg-lens)"/><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="34" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg><span>Exploring your tastes…</span></div>
