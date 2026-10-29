@@ -564,6 +564,8 @@ const actions = {
   home: () => go('home'),
   scroll: el => {
     if (!document.getElementById(el.dataset.to)) go('home');
+    const details = el.dataset.to === 'research' && app.querySelector('#research + details');
+    if (details) details.open = true; // "Research" and "See every step" should show the steps, not a closed box
     document.getElementById(el.dataset.to)?.scrollIntoView();
   },
   people: () => { error = ''; go('people'); },
