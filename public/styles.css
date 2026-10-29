@@ -59,8 +59,10 @@ body[data-screen="home"] .nav button:hover, body[data-screen="plan"] .nav button
 .btn:hover { filter: brightness(1.1); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .dark .btn, body[data-screen="home"] .top .btn, body[data-screen="plan"] .top .btn { background: var(--lav); color: var(--lav-ink); }
-.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.btn.ghost { background: #fff; color: var(--indigo); border: 1.5px solid var(--indigo); box-shadow: 0 1px 2px rgba(11, 35, 64, .08); transition: background .15s, color .15s, transform .15s, box-shadow .15s; }
+.btn.ghost:hover { filter: none; background: var(--indigo); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76, 70, 162, .25); }
 .dark .btn.ghost { background: transparent; color: #fff; border-color: #4a5383; }
+.dark .btn.ghost:hover { background: rgba(255, 255, 255, .1); border-color: var(--lav); }
 .btn.small { padding: 8px 18px; font-size: .9rem; }
 .btn svg { width: 18px; height: 18px; }
 .link { background: none; border: 0; color: var(--indigo); cursor: pointer; padding: 0; font-weight: 700; display: inline-flex; gap: 6px; align-items: center; }
