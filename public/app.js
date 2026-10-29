@@ -15,7 +15,7 @@ const GROUPS = {
   friends: { title: 'Old friends', line: 'Pick up where you left off.', names: ['', ''], tint: 's5', icon: 'people', hidden: true },
 };
 
-const TYPE_LABEL = { artist: 'Music', movie: 'Film', tv_show: 'TV show', book: 'Book', podcast: 'Podcast', place: 'Place', destination: 'Destination', brand: 'Brand', person: 'Artist / public figure', video_game: 'Game' };
+const TYPE_LABEL = { artist: 'Music', movie: 'Film', tv_show: 'TV show', book: 'Book', podcast: 'Podcast', place: 'Place', destination: 'Destination', brand: 'Brand', person: 'Public figure', video_game: 'Game' };
 const TINTS = ['s1', 's2', 's3', 's4', 's5'];
 // Category buttons above each interest box; keys match CATEGORIES in api/search.js.
 const CATS = [
@@ -107,7 +107,7 @@ const ago = t => {
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const app = document.getElementById('app');
 const names = () => state.people.map(p => p.name.trim()).filter(Boolean);
-const enjoys = name => name.trim() ? `What ${esc(name.trim())} enjoys` : 'What they enjoy';
+const enjoys = name => !name.trim() ? 'What they enjoy' : name.trim().toLowerCase() === 'you' ? 'What you enjoy' : `What ${esc(name.trim())} enjoys`;
 const listOf = ns => ns.length > 1 ? `${ns.slice(0, -1).join(', ')} and ${ns.at(-1)}` : ns[0] || '';
 
 function go(screen) {
@@ -345,7 +345,7 @@ function exploring() {
     <p class="eyebrow">Live example · Sunday lunch at Gogo's, Johannesburg</p>
     <ul class="demo-people">${examplePeople()}</ul>
   </div>` : ''}
-  <p class="lead" style="text-align:center;margin:0 auto">The agent is searching Qloo's taste graph for ${esc(listOf(names()))}. This takes about half a minute.</p>
+  <p class="lead" style="text-align:center;margin:0 auto">The agent is searching Qloo's taste graph for ${esc(listOf(names().map(n => /^(you|your date)$/i.test(n) ? n.toLowerCase() : n)))}. This takes about a minute.</p>
   <div class="card explore-card">
     <div class="bar"><svg class="logo" viewBox="0 0 52 36" aria-hidden="true"><path d="M26 6.51A14 14 0 0 1 26 29.49A14 14 0 0 1 26 6.51Z" fill="url(#cg-lens)"/><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="34" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg><span>Exploring your tastes…</span></div>
     <ul class="trail" aria-live="polite">
@@ -386,7 +386,10 @@ const trailHtml = list => {
 const trailItem = t => t.type === 'round'
   ? `<li class="round">Round ${t.n} · ${esc(t.text)}</li>`
   : `<li class="${t.type}">${esc(t.text)}${t.reason ? `<span class="reason">${esc(t.reason)}</span>` : ''}${t.result ? `<span class="result">Found: ${esc(t.result)}</span>` : ''}</li>`;
-const tagLine = e => [TYPE_LABEL[e.type] || e.type, ...(e.tags || []).slice(0, 2)].filter(Boolean).map(esc).join(' · ');
+const tagLine = e => [TYPE_LABEL[e.type] || e.type, ...(e.genres?.length ? e.genres : e.tags || []).slice(0, 2)].filter(Boolean).map(esc).join(' · ');
+// "King Richard: This film follows…" so a fact never points at an unnamed "this film"
+const named = (text, e) => e?.name && !text.includes(e.name) ? `<b>${esc(e.name)}:</b> ${esc(text)}` : esc(text);
+const unlessNamed = (text, e) => e?.name && !text.includes(e.name) ? ` (${e.name})` : '';
 
 function row(item, title) {
   const e = item.entity || {};
@@ -419,7 +422,7 @@ function planText() {
     `Common Ground plan for ${listOf(names())}`,
     p.headline, '',
     p.visit.title,
-    ...p.visit.steps.map((s, i) => `${i + 1}. ${s.what}${s.entity ? ` (${s.entity.name})` : ''}`), '',
+    ...p.visit.steps.map((s, i) => `${i + 1}. ${s.what}${unlessNamed(s.what, s.entity)}`), '',
     'Things to talk about:',
     ...p.conversationStarters.map(c => `- ${c.asker ? `${c.asker} asks ${c.to}: ` : ''}${c.question}${c.followUp ? ` (then: ${c.followUp})` : ''}`),
   ].join('\n');
@@ -442,7 +445,7 @@ function plan() {
         <strong>Your journey</strong>
         The more you share, the better the suggestions.
         <div class="meter"><i style="width:${Math.min(visitNo, 5) * 20}%"></i></div>
-        Visit ${visitNo} of 5
+        Visit ${Math.min(visitNo, 5)} of 5
       </div>
     </nav>
     <div class="dash-main">
@@ -471,7 +474,7 @@ function plan() {
               <div>
                 <strong style="color:var(--ink)">${esc(p.visit.title)}</strong>
                 <ol class="vsteps">
-                  ${p.visit.steps.map((s, i) => `<li><span class="n">${i + 1}</span><span><strong>${esc(s.what)}</strong>${s.entity ? ` <span class="meta">(${esc(s.entity.name)})</span>` : ''}<br>${esc(s.why || '')}<span class="acts">${badge(s.source)}${act(s.entity)}</span></span></li>`).join('')}
+                  ${p.visit.steps.map((s, i) => `<li><span class="n">${i + 1}</span><span><strong>${esc(s.what)}</strong>${unlessNamed(s.what, s.entity) ? ` <span class="meta">${esc(unlessNamed(s.what, s.entity))}</span>` : ''}<br>${esc(s.why || '')}<span class="acts">${badge(s.source)}${act(s.entity)}</span></span></li>`).join('')}
                 </ol>
               </div>
             </div>
@@ -480,7 +483,7 @@ function plan() {
             <div class="col-head"><span class="icon" style="background:var(--card)">${svg('chat')}</span><div><h3>${p.conversationStarters.length} conversation starters</h3></div></div>
             <ol class="starters-list">${p.conversationStarters.map(c => `<li>
               ${c.asker ? `<span class="asker">${esc(c.asker)} ${svg('arrow')} ${esc(c.to)}</span>` : ''}
-              ${c.hook && c.entity ? `<span class="hook">${esc(c.hook)}</span>` : ''}
+              ${c.hook && c.entity ? `<span class="hook">${named(c.hook, c.entity)}</span>` : ''}
               <strong>${esc(c.question)}</strong>
               ${c.followUp ? `<span class="follow">If they light up: ${esc(c.followUp)}</span>` : ''}
             </li>`).join('')}</ol>
@@ -490,9 +493,9 @@ function plan() {
 
         <div class="cols3" id="found">
           ${column('bridges', 'spark', 's3', 'Bridges', `Things you'd ${names().length === 2 ? 'both' : 'all'} enjoy`, p.bridges, b => row(b))}
-          ${column('swaps', 'swap', 's5', 'Swaps', "Each person's world, for the others", p.swaps, s => row(s, `${esc(s.from)} shares ${esc(s.entity?.name)}`))}
+          ${column('swaps', 'swap', 's5', 'Swaps', "Each person's world, for the others", p.swaps, s => row(s, `${/^you$/i.test(s.from) ? 'You share' : `${esc(s.from)} shares`} ${esc(s.entity?.name)}`))}
           ${column('surprises', 'heart', 's2', 'Surprises', 'Interesting facts from the data', p.surprises || [], s => `
-            <li class="row-item"><span class="thumb round" style="background:var(--s2)">${svg('spark')}</span><div><p style="margin:0;color:var(--ink)">${esc(s.text)}</p>${badge(s.source)}</div></li>`)}
+            <li class="row-item"><span class="thumb round" style="background:var(--s2)">${svg('spark')}</span><div><p style="margin:0;color:var(--ink)">${named(s.text, s.entity)}</p>${badge(s.source)}</div></li>`)}
         </div>
 
         <div class="card after">
@@ -789,8 +792,11 @@ function searchSoon(i, q, delay = 300) {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${cats[i] ? `&cat=${cats[i]}` : ''}`);
       const seen = new Set(); // Qloo sometimes lists the same title more than once
       const all = await res.json();
-      const artists = new Set(all.filter(r => r.type === 'artist').map(r => r.name.toLowerCase()));
-      const found = all.filter(r => TYPE_LABEL[r.type] && !(r.type === 'person' && artists.has(r.name.toLowerCase())) && !seen.has(r.type + r.name) && seen.add(r.type + r.name));
+      // Hide a "person" that is the same singer as an artist result, but not a namesake:
+      // Tyla the South African singer must survive Tyla the English rock musician.
+      const artists = new Map(all.filter(r => r.type === 'artist').map(r => [r.name.toLowerCase(), (r.description || '').toLowerCase()]));
+      const sameSinger = r => r.type === 'person' && artists.get(r.name.toLowerCase())?.includes((r.description || '').toLowerCase().split(' ')[0]);
+      const found = all.filter(r => TYPE_LABEL[r.type] && !sameSinger(r) && !seen.has(r.type + r.name) && seen.add(r.type + r.name));
       if (ticket !== latest) return;
       list.innerHTML = found.length
         ? found.map(r => `<li><button data-pick='${esc(JSON.stringify({ id: r.id, name: r.name, type: r.type }))}' data-i="${i}">

@@ -18,7 +18,7 @@ Common Ground takes a few favourites from each person and uses **Qloo's taste gr
 - **A plan for the next visit** that names the actual song, film and place ("Sipho plays Gogo some Davido · Watch King Richard together · Lunch at Roar Bistro"), plus 4 or 5 conversation starters. Each says who asks whom ("Sipho → Gogo"), opens with a fact from Qloo's data about a recommended item, and comes with a follow-up for when they light up. The mix is deliberate: one invites the older person to tell a story from their time, one lets the younger person teach something, one is a playful this-or-that.
 - **One tap to do it**: every song, film, show, book and place has a *Listen*, *Watch trailer*, *Look inside* or *Directions* button (YouTube, Google Books and Google Maps search links, no extra accounts).
 
-Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Artist / public figure · South African singer-songwriter").
+Adding interests is a search over Qloo: type a name, optionally narrow it with a category button, and pick the right match from the labelled results ("Tyla · Public figure · South African singer-songwriter"). A namesake isn't hidden as a duplicate: Tyla the South African singer still shows next to Tyla the English rock musician.
 
 **Each person can add their own favourites.** After adding yours, tap *Invite them to add theirs*: your picks travel inside a link (no accounts, no database) that you send on WhatsApp. The other person opens it, sees your card filled in, adds theirs and gets the plan. Links are checked strictly when opened, and anything that doesn't look like a genuine invite is ignored.
 
