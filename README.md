@@ -83,7 +83,7 @@ Import the repo into [Vercel](https://vercel.com), add `QLOO_API_KEY` and `GEMIN
 - Invite links carry the sender's picks in the link itself, and the app says so before you share one.
 - Qloo responses are never stored in the repo; the server keeps recent plans in memory only.
 - Town suggestions come straight from the browser to [Photon](https://photon.komoot.io) (OpenStreetMap data). Picking one sends exact coordinates so Qloo searches within 15 km.
-- The couples flow says plainly that this isn't counselling and points to free helplines in any country (findahelpline.com), plus the GBV Command Centre (0800 428 428) and FAMSA in South Africa.
+- The couples flow says plainly that this isn't counselling and points to free helplines in any country (findahelpline.com).
 - The first-date flow reminds people to meet somewhere public, tell a friend, and plan their own way home.
 
 ## Credits
