@@ -317,11 +317,12 @@ function people() {
   <div class="location">
     <span class="pin">${svg('pin')}</span>
     <div>
-      <p class="label">Optional: add a location</p>
+      <p class="label">Where will you meet? (optional)</p>
       <div class="search">
-        <input class="field" placeholder="Start typing a town or city, e.g. Durban" value="${esc(state.city)}" data-city aria-label="Location" autocomplete="off" maxlength="100">
+        <input class="field" placeholder="Start typing a town or city, e.g. Durban" value="${esc(state.city)}" data-city aria-label="Where will you meet? (optional)" aria-describedby="city-hint" autocomplete="off" maxlength="100">
         <ul class="results" data-places hidden></ul>
       </div>
+      <p class="meta" id="city-hint" style="margin:6px 0 0">We'll suggest real places nearby. Leave it empty if you're staying in.</p>
     </div>
   </div>
   ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
